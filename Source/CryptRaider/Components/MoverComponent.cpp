@@ -44,7 +44,7 @@ void UMoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 void UMoverComponent::MoveActor(const bool & bCanMove, const float & DeltaTimeSeconds)
 {
-	if (bIsMovingFinished && !bCanMove)
+	if (bIsMovingFinished && !bCanMove && FMath::IsNearlyZero(DeltaTimeSeconds))
 	{
 		return;
 	}
@@ -53,7 +53,7 @@ void UMoverComponent::MoveActor(const bool & bCanMove, const float & DeltaTimeSe
 
 	MoveSpeed += Acceleration;
 	
-	CurrentLocation = FMath::VInterpConstantTo(
+	CurrentLocation = FMath::VInterpTo(
 		CurrentLocation,
 		TargetLocation,
 		DeltaTimeSeconds,
