@@ -7,6 +7,8 @@
 #include "GrabberComponent.generated.h"
 
 
+class UCameraComponent;
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class CRYPTRAIDER_API UGrabberComponent : public UActorComponent
 {
@@ -24,5 +26,9 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+private:
+	UPROPERTY()
+	AActor* OwningActor {nullptr};
+	UPROPERTY()
+	UCameraComponent* OwnerCamera {nullptr};
 };

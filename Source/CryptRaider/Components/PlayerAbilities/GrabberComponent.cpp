@@ -3,6 +3,8 @@
 
 #include "GrabberComponent.h"
 
+#include "Camera/CameraComponent.h"
+
 // Sets default values for this component's properties
 UGrabberComponent::UGrabberComponent()
 {
@@ -19,8 +21,8 @@ void UGrabberComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	OwningActor = GetOwner();
+	OwnerCamera = OwningActor->FindComponentByClass<UCameraComponent>();
 }
 
 

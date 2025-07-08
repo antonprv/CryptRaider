@@ -41,7 +41,7 @@ private:
 	UPROPERTY()
 	UWorld* GameWorld {nullptr};
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void MoveActor(const bool& bCanMove, const float & DeltaTimeSeconds);
 		
 };
