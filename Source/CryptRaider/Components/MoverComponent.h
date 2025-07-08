@@ -30,6 +30,8 @@ private:
 	UPROPERTY(EditAnywhere)
 	float MoveSpeed {0.f};
 	UPROPERTY(EditAnywhere)
+	float Acceleration {0.f};
+	UPROPERTY(EditAnywhere)
 	bool bShouldMove {false};
 
 	UPROPERTY()

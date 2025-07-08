@@ -50,6 +50,8 @@ void UMoverComponent::MoveActor(const bool & bCanMove, const float & DeltaTimeSe
 	}
 
 	ActorToMove->SetActorLocation(CurrentLocation);
+
+	MoveSpeed += Acceleration;
 	
 	CurrentLocation = FMath::VInterpConstantTo(
 		CurrentLocation,

@@ -4,6 +4,7 @@
 #include "GrabberComponent.h"
 
 #include "Camera/CameraComponent.h"
+#include "Engine/World.h"
 
 // Sets default values for this component's properties
 UGrabberComponent::UGrabberComponent()
@@ -20,7 +21,7 @@ UGrabberComponent::UGrabberComponent()
 void UGrabberComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	OwningActor = GetOwner();
 	OwnerCamera = OwningActor->FindComponentByClass<UCameraComponent>();
 }
@@ -30,7 +31,22 @@ void UGrabberComponent::BeginPlay()
 void UGrabberComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	
+}
 
-	// ...
+void UGrabberComponent::TraceGrabLineFromCameraView(float TraceDistance, FHitResult& OutHitResult, bool& OutIsHit) const
+{
+	if (GetWorld() == nullptr)
+	{
+		return;
+	}
+	
+
+	// GetWorld()->LineTraceSingleByChannel(
+	// 	OutHitResult,
+	// 	OwnerCamera->GetForwardVector(),
+	// 	OwnerCamera->GetForwardVector() * TraceDistance,
+	// 	ECollisionChannel::
+	// 	)
 }
 
