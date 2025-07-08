@@ -3,6 +3,8 @@
 
 #include "MoverComponent.h"
 
+#include "Math/UnrealMathUtility.h"
+
 // Sets default values for this component's properties
 UMoverComponent::UMoverComponent()
 {
@@ -19,7 +21,7 @@ void UMoverComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	ActorToMove = GetOwner();
 	
 }
 
@@ -29,6 +31,24 @@ void UMoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	MoveActor(bShouldMove);
 }
 
+void UMoverComponent::MoveActor(const bool & bCanMove)
+{
+	if (bIsMovingFinished && !bCanMove)
+	{
+		return;
+	}
+	
+	CurrentLocation = FMath::VInterpConstantTo(
+		CurrentLocation,
+		TargetLocation,
+		GetWorld()->DeltaTimeSeconds,
+		MoveSpeed);
+
+	if (CurrentLocation.Equals(TargetLocation))
+	{
+		bIsMovingFinished = true;
+	}
+}

@@ -24,5 +24,22 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+private:
+	UPROPERTY(EditAnywhere)
+	FVector TargetLocation {0.f, 0.f, 0.f};
+	UPROPERTY(EditAnywhere)
+	float MoveSpeed {0.f};
+	UPROPERTY(EditAnywhere)
+	bool bShouldMove {false};
+
+	UPROPERTY()
+	AActor* ActorToMove {nullptr};
+	UPROPERTY()
+	FVector CurrentLocation {0.f, 0.f, 0.f};
+	UPROPERTY()
+	bool bIsMovingFinished {false};
+
+	UFUNCTION()
+	void MoveActor(const bool& bCanMove);
 		
 };
