@@ -21,7 +21,15 @@ void UMoverComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Not validating actor, because there can not be an ActorComponent without an Actor
 	ActorToMove = GetOwner();
+	GameWorld = GetWorld();
+	if (GameWorld == nullptr)
+	{
+		bShouldMove = false;
+	}
+
+	CurrentLocation = ActorToMove->GetActorLocation();
 	
 }
 
@@ -31,20 +39,22 @@ void UMoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	MoveActor(bShouldMove);
+	MoveActor(bShouldMove, GameWorld->GetDeltaSeconds());
 }
 
-void UMoverComponent::MoveActor(const bool & bCanMove)
+void UMoverComponent::MoveActor(const bool & bCanMove, const float & DeltaTimeSeconds)
 {
 	if (bIsMovingFinished && !bCanMove)
 	{
 		return;
 	}
+
+	ActorToMove->SetActorLocation(CurrentLocation);
 	
 	CurrentLocation = FMath::VInterpConstantTo(
 		CurrentLocation,
 		TargetLocation,
-		GetWorld()->DeltaTimeSeconds,
+		DeltaTimeSeconds,
 		MoveSpeed);
 
 	if (CurrentLocation.Equals(TargetLocation))

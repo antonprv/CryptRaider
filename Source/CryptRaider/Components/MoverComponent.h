@@ -38,8 +38,10 @@ private:
 	FVector CurrentLocation {0.f, 0.f, 0.f};
 	UPROPERTY()
 	bool bIsMovingFinished {false};
+	UPROPERTY()
+	UWorld* GameWorld {nullptr};
 
 	UFUNCTION()
-	void MoveActor(const bool& bCanMove);
+	void MoveActor(const bool& bCanMove, const float & DeltaTimeSeconds);
 		
 };
