@@ -54,10 +54,8 @@ void UGrabberComponent::TraceFromCamera(const float& TraceDistance, const float&
 	{
 		DrawDebug(TraceDistance, DebugLineThickness);
 	}
-
 	
-
-	GetWorld()->SweepSingleByChannel(
+	OutIsHit = GetWorld()->SweepSingleByChannel(
 		OutHitResult,
 		OwnerCamera->GetComponentLocation(),
 		OwnerCamera->GetComponentLocation() + OwnerCamera->GetForwardVector() * TraceDistance,
