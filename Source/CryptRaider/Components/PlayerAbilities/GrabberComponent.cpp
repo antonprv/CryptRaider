@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Made by Antosh (anton.prv), derivative work strictly prohibited, except for non-commercial use.
 
 
 #include "Engine/World.h"
