@@ -2,9 +2,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BlueprintEditor.h"
 
 #include "Components/ActorComponent.h"
+
 #include "GrabberComponent.generated.h"
 
 
