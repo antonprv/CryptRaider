@@ -1,5 +1,4 @@
 // Made by Antosh (anton.prv), derivative work strictly prohibited, except for non-commercial use.
-
 #pragma once
 
 #include "CoreMinimal.h"

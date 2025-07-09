@@ -26,6 +26,8 @@ UGrabberComponent::UGrabberComponent()
 void UGrabberComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	DECLARE_LOG_CATEGORY_CLASS(UGrabberComponentLog, Error, Error)
 	
 	OwningActor = GetOwner();
 	OwnerCamera = OwningActor->FindComponentByClass<UCameraComponent>();
@@ -33,12 +35,13 @@ void UGrabberComponent::BeginPlay()
 	if (OwnerCamera == nullptr)
 	{
 		bIsValid = false;
-		UE_LOG(LogTemp, Error, TEXT("No Camera Component found in the owning Actor"))
+		
+		UE_LOG(UGrabberComponentLog, Error, TEXT("No Camera Component found in the owning Actor"))
 	}
 	else if (GrabHandle == nullptr)
 	{
 		bIsValid = false;
-		UE_LOG(LogTemp, Error, TEXT("No Physics Component found in the owning Actor"))
+		UE_LOG(UGrabberComponentLog, Error, TEXT("No Physics Component found in the owning Actor"))
 	}
 }
 
@@ -62,13 +65,22 @@ void UGrabberComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 void UGrabberComponent::Grab()
 {
+	DECLARE_LOG_CATEGORY_CLASS(UGrabberPhysics, Error, Error)
+	
 	if (bHasHit)
 	{
+		if (!GrabResult.GetComponent()->IsSimulatingPhysics())
+		{
+			UE_LOG(UGrabberPhysics, Error,
+				TEXT("%s is not simulating physics"), *GrabResult.GetActor()->GetActorNameOrLabel())
+			return;
+		}
+		
 		GrabHandle->GrabComponentAtLocationWithRotation(
 			GrabResult.GetComponent(),
 			NAME_None,
 			GrabEnd,
-			OwnerCamera->GetComponentRotation());
+			OwningActor->GetActorRotation());
 
 		bIsGrabbing = true;
 	}
@@ -76,12 +88,15 @@ void UGrabberComponent::Grab()
 
 void UGrabberComponent::KeepGrabbing() const
 {
-	GrabHandle->SetTargetLocationAndRotation(GrabEnd, OwnerCamera->GetComponentRotation());
+	GrabHandle->SetTargetLocationAndRotation(GrabEnd, OwningActor->GetActorRotation());
 }
 
 void UGrabberComponent::Release()
 {
-	GrabHandle->ReleaseComponent();
+	if (GrabHandle->GetGrabbedComponent() != nullptr)
+	{
+		GrabHandle->ReleaseComponent();
+	}
 	bIsGrabbing = false;
 }
 
@@ -97,11 +112,6 @@ void UGrabberComponent::TraceFromCamera(const float& TraceDistance, const float&
 	if (bIsDebugging)
 	{
 		DrawDebug(TraceDistance, GrabRadius, OutStartTrace, OutEndTrace);
-
-		if (OutIsHit)
-		{
-			UE_LOG(LogTemp, Display, TEXT("Grabber: %s is in range"), *OutHitResult.GetActor()->GetName())
-		}
 	}
 
 	OutStartTrace = OwnerCamera->GetComponentLocation();
@@ -125,8 +135,15 @@ void UGrabberComponent::DrawDebug(const float& TraceDistance, const float& Spher
 		StartTrace,
 		EndTrace,
 		SphereRadius,
-		FColor::Emerald,
-		false,
-		-1,
-		0);
+		FColor::Emerald);
+
+	if (bHasHit)
+	{
+		DrawDebugSphere(
+			GetWorld(),
+			GrabResult.Location,
+			SphereRadius,
+			16,
+			FColor::Emerald);
+	}
 }
