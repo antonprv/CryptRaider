@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 
 #include "DrawDebugHelpers.h"
+#include "KismetTraceUtils.h"
 
 
 // Sets default values for this component's properties
@@ -40,19 +41,27 @@ void UGrabberComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// DrawDebug(GrabDistabce, bIsDebugEnabled);
+	FHitResult HitResult;
+	bool bWasHit;
+	TraceFromCamera(GrabDistance, GrabRadius, HitResult, bWasHit, bIsDebugEnabled);
+	if (bWasHit)
+	{
+		UE_LOG(LogTemp, Display, TEXT("Hit: %s"), *HitResult.GetActor()->GetActorNameOrLabel())
+	}
+	
+	
 }
 
-void UGrabberComponent::TraceFromCamera(const float& TraceDistance, const float& SphereRadius, FHitResult& OutHitResult, bool& OutIsHit, const bool& Debug)
+void UGrabberComponent::TraceFromCamera(const float& TraceDistance, const float& SphereRadius, FHitResult& OutHitResult, bool& OutIsHit, const bool& bIsDebugging)
 {
 	if (GetWorld() == nullptr || !bIsValid)
 	{
 		return;
 	}
 
-	if (Debug)
+	if (bIsDebugging)
 	{
-		DrawDebug(TraceDistance, DebugLineThickness);
+		DrawDebug(TraceDistance, GrabRadius);
 	}
 	
 	OutIsHit = GetWorld()->SweepSingleByChannel(
@@ -65,15 +74,15 @@ void UGrabberComponent::TraceFromCamera(const float& TraceDistance, const float&
 	
 }
 
-void UGrabberComponent::DrawDebug(const float& TraceDistance, const float& LineThickness) const
+void UGrabberComponent::DrawDebug(const float& TraceDistance, const float& SphereRadius) const
 {
-	DrawDebugLine(
+	DrawDebugSweptSphere(
 		GetWorld(),
 		OwnerCamera->GetComponentLocation(),
 		OwnerCamera->GetComponentLocation() + OwnerCamera->GetForwardVector() * TraceDistance,
+		SphereRadius,
 		FColor::Emerald,
 		false,
 		-1,
-		0,
-		LineThickness);
+		0);
 }
