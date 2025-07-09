@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "Components/ActorComponent.h"
+
 #include "GrabberComponent.generated.h"
 
 
@@ -28,13 +30,26 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, Category="Grabbing parameters", meta = (Tooltip = "Maximum grabbing distance"))
 	float GrabDistabce {2.f};
-	UFUNCTION(BlueprintCallable, Category= "Physics|Traces", meta = (Keywords = "Trace Line Hit"))
-	void TraceGrabLineFromCameraView (float TraceDistance, FHitResult & OutHitResult, bool & OutIsHit) const;
+	UPROPERTY(EditAnywhere, Category="Grabbing parameters", meta = (Tooltip = "Radius of the sphere trace for grabbing"))
+	float GrabbingRadius {30.f};
+	UPROPERTY(EditAnywhere, Category="Grabbing debug", meta = (Tooltip = "Toggle debug line draw on \\ off"))
+	bool bIsDebugEnabled {false};
+	UPROPERTY(EditAnywhere, Category="Grabbing debug",
+		meta = (Tooltip = "Thickness of the debug line, by default equal to the TraceFromCamera radius"))
+	float DebugLineThickness {GrabbingRadius};
 	
+	UFUNCTION(BlueprintCallable, Category= "Physics|Traces", meta = (Keywords = "Trace Line Hit",
+		Tooltip="Does a sphere trace from camera view, returns first object hit and hit result, can also draw debug line"))
+	void TraceFromCamera (const float& TraceDistance, const float& SphereRadius, FHitResult& OutHitResult, bool& OutIsHit, const bool& Debug = true);
+
+	UPROPERTY()
+	bool bIsValid {true};
 	UPROPERTY()
 	AActor* OwningActor {nullptr};
 	UPROPERTY()
 	UCameraComponent* OwnerCamera {nullptr};
+	UFUNCTION()
+	void DrawDebug(const float& TraceDistance, const float& LineThickness) const;
 };
