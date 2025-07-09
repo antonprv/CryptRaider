@@ -44,7 +44,7 @@ void UMoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 void UMoverComponent::MoveActor(const bool & bCanMove, const float & DeltaTimeSeconds)
 {
-	if (bIsMovingFinished && !bCanMove && FMath::IsNearlyZero(DeltaTimeSeconds))
+	if (bIsMovingFinished || !bCanMove || FMath::IsNearlyZero(DeltaTimeSeconds))
 	{
 		return;
 	}
