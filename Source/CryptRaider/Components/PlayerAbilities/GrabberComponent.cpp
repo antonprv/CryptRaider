@@ -80,7 +80,7 @@ void UGrabberComponent::Grab()
 			GrabResult.GetComponent(),
 			NAME_None,
 			GrabEnd,
-			OwningActor->GetActorRotation());
+			OwnerCamera->GetComponentRotation());
 
 		bIsGrabbing = true;
 	}
