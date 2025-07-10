@@ -76,6 +76,8 @@ void UGrabberComponent::Grab()
 				TEXT("%s is not simulating physics"), *GrabResult.GetActor()->GetActorNameOrLabel())
 			return;
 		}
+
+		GrabResult.GetComponent()->WakeAllRigidBodies();
 		
 		GrabHandle->GrabComponentAtLocationWithRotation(
 			GrabResult.GetComponent(),
@@ -94,10 +96,14 @@ void UGrabberComponent::KeepGrabbing() const
 
 void UGrabberComponent::Release()
 {
-	if (GrabHandle->GetGrabbedComponent() != nullptr)
+	if (GrabHandle->GetGrabbedComponent() == nullptr)
 	{
-		GrabHandle->ReleaseComponent();
+		return;
 	}
+
+	GrabResult.GetComponent()->WakeAllRigidBodies();
+	GrabHandle->ReleaseComponent();
+	
 	bIsGrabbing = false;
 }
 
@@ -131,6 +137,7 @@ void UGrabberComponent::TraceFromCamera(const float& TraceDistance, const float&
 void UGrabberComponent::DrawDebug(const float& TraceDistance, const float& SphereRadius, const FVector& StartTrace,
 	const FVector& EndTrace)
 {
+	// Make sphere trace, that precisely repeats the actual trace in TraceFromCamera
 	DrawDebugSweptSphere(
 		GetWorld(),
 		StartTrace,
@@ -140,6 +147,7 @@ void UGrabberComponent::DrawDebug(const float& TraceDistance, const float& Spher
 
 	if (bHasHit)
 	{
+		// Draw a sphere in the place, where we're touching the object
 		DrawDebugSphere(
 			GetWorld(),
 			GrabResult.Location,
