@@ -26,17 +26,23 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UPROPERTY(EditAnywhere, Category="Debug", meta = (Tooltip="Log out in console if Key is in lock if set to true"))
+	bool bIsDebugEnabled {false};
 	UPROPERTY(EditAnywhere, Category="Object Detection", meta = (Tooltip = "Set actor or component tag to look for"))
-	FName TriggerTag {"Key"};
+	FName KeyTag {"Key"};
 	
 	UPROPERTY(BlueprintReadOnly, Category="Object Detection",
-		meta = (Tooltip = "All actors (or components) with the TriggerTag"))
-	TArray<AActor*> OverlappingActors {nullptr};
+		meta = (Tooltip = "All actors (or components) with the KeyTag"))
+	TArray<AActor*> KeyActors {nullptr};
 
 private:
 	UPROPERTY()
 	bool bDoneOnce {false};
-	
+
 	UFUNCTION()
-	void DebugOverlapping(TArray<AActor*> Actors) const;
+	AActor* GetFittingActor(TArray<AActor*>& OverlappingActors) const;
+	UFUNCTION()
+	void DebugShowFitActor(AActor* Key) const;
+	UFUNCTION()
+	void DebugShowFitActorWithComponent(AActor* Key) const;
 };

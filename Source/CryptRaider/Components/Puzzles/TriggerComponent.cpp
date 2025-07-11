@@ -36,31 +36,42 @@ void UTriggerComponent::BeginPlay()
 void UTriggerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (!bDoneOnce)
-	{
-		DebugOverlapping(OverlappingActors);
-		bDoneOnce = true;
-	}
+	
 }
 
-void UTriggerComponent::DebugOverlapping(TArray<AActor*> Actors) const
+AActor* UTriggerComponent::GetFittingActor(TArray<AActor*>& OverlappingActors) const
 {
-	this->GetOverlappingActors(Actors);
-
-	for (const AActor* Actor : Actors)
+	this->GetOverlappingActors(OverlappingActors);
+	for (AActor* Actor : OverlappingActors)
 	{
-		if (Actor->ActorHasTag(TriggerTag))
+		if (Actor->ActorHasTag(KeyTag))
 		{
-			UE_LOG(LogTemp, Display, TEXT("%s has key as %s Actor"),
-				*GetOwner()->GetActorNameOrLabel(), *Actor->GetActorNameOrLabel())
+			DebugShowFitActor(Actor);
+			return Actor;
 		}
-		else if (Actor->FindComponentByTag<UStaticMeshComponent>(TriggerTag) != nullptr)
+		else if (Actor->FindComponentByTag<UStaticMeshComponent>(KeyTag) != nullptr)
 		{
-			UE_LOG(LogTemp, Display, TEXT("%s has key as %s's Component"),
-				*GetOwner()->GetActorNameOrLabel(), *Actor->GetActorNameOrLabel())
+			DebugShowFitActorWithComponent(Actor);
+			return Actor;
 		}
+	}
+	return nullptr;
+}
+
+void UTriggerComponent::DebugShowFitActor(AActor* Key) const
+{
+	if (bIsDebugEnabled)
+	{
+		UE_LOG(LogTemp, Display, TEXT("%s has key as %s Actor"),
+				*GetOwner()->GetActorNameOrLabel(), *Key->GetActorNameOrLabel())
 	}
 }
 
-
+void UTriggerComponent::DebugShowFitActorWithComponent(AActor* Key) const
+{
+	if (bIsDebugEnabled)
+	{
+		UE_LOG(LogTemp, Display, TEXT("%s has key as %s's Component"),
+					*GetOwner()->GetActorNameOrLabel(), *Key->GetActorNameOrLabel())
+	}
+}
