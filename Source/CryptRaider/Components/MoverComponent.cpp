@@ -29,7 +29,11 @@ void UMoverComponent::BeginPlay()
 		bShouldMove = false;
 	}
 
-	CurrentLocation = ActorToMove->GetActorLocation();
+	DefaultLocation = ActorToMove->GetActorLocation();
+	CurrentLocation = DefaultLocation;
+
+	DefaultRotation = ActorToMove->GetActorRotation();
+	CurrentRotation = DefaultRotation;
 	
 }
 
@@ -40,27 +44,87 @@ void UMoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	MoveActor(bShouldMove, GameWorld->GetDeltaSeconds());
+	RotateActor(bShouldMove, GameWorld->GetDeltaSeconds());
 }
+
+void UMoverComponent::SetShouldMove()
+{
+	IIMovable::SetShouldMove();
+	
+	bShouldMove = true;
+}
+
 
 void UMoverComponent::MoveActor(const bool & bCanMove, const float & DeltaTimeSeconds)
 {
-	if (bIsMovingFinished || !bCanMove || FMath::IsNearlyZero(DeltaTimeSeconds))
+	if (bIsMovingFinished || FMath::IsNearlyZero(DeltaTimeSeconds))
 	{
 		return;
 	}
 
-	ActorToMove->SetActorLocation(CurrentLocation);
+	if (bCanMove)
+	{
+		bIsMovingFinished = MoveToLocation(CurrentLocation, TargetLocation, DeltaTimeSeconds);
+	}
+	else if (!bCanMove)
+	{
+		bIsMovingFinished = MoveToLocation(CurrentLocation, DefaultLocation, DeltaTimeSeconds);
+	}
+}
+
+void UMoverComponent::RotateActor(const bool& bCanMove, const float& DeltaTimeSeconds)
+{
+	if (bIsMovingFinished || FMath::IsNearlyZero(DeltaTimeSeconds))
+	{
+		return;
+	}
+
+	if (bCanMove)
+	{
+		bIsMovingFinished = RotateToRotation(CurrentRotation, TargetRotation, DeltaTimeSeconds);
+	}
+	else if (!bCanMove)
+	{
+		bIsMovingFinished = RotateToRotation(CurrentRotation, DefaultRotation, DeltaTimeSeconds);
+	}
+}
+
+bool UMoverComponent::MoveToLocation(FVector& Start, const FVector& End, const float& DeltaTimeSeconds)
+{
+	ActorToMove->SetActorLocation(Start);
 
 	MoveSpeed += Acceleration;
 	
 	CurrentLocation = FMath::VInterpTo(
-		CurrentLocation,
-		TargetLocation,
+		Start,
+		End,
 		DeltaTimeSeconds,
 		MoveSpeed);
 
-	if (CurrentLocation.Equals(TargetLocation))
+	if (Start.Equals(End))
 	{
-		bIsMovingFinished = true;
+		return true;
 	}
+	return false;
 }
+
+bool UMoverComponent::RotateToRotation(FRotator& Start, const FRotator& End, const float & DeltaTimeSeconds)
+{
+	ActorToMove->SetActorRotation(Start);
+
+	MoveSpeed += Acceleration;
+	
+	CurrentRotation = FMath::RInterpTo(
+		Start,
+		End,
+		DeltaTimeSeconds,
+		MoveSpeed);
+
+	if (Start.Equals(End))
+	{
+		return true;
+	}
+	return false;
+}
+
+

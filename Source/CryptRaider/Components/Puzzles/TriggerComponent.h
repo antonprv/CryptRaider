@@ -3,9 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "Components/BoxComponent.h"
+
 #include "TriggerComponent.generated.h"
 
+class IIMovable;
 /**
  * 
  */
@@ -25,7 +28,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	
 	UPROPERTY(EditAnywhere, Category="Debug", meta = (Tooltip="Log out in console if Key is in lock if set to true"))
 	bool bIsDebugEnabled {false};
 	UPROPERTY(EditAnywhere, Category="Object Detection", meta = (Tooltip = "Set actor or component tag to look for"))
@@ -34,6 +37,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category="Object Detection",
 		meta = (Tooltip = "All actors (or components) with the KeyTag"))
 	TArray<AActor*> KeyActors {nullptr};
+
+	UFUNCTION(BlueprintCallable, Category="ObjectDetection", meta=(Tooltip="Make the IMovable object move"))
+	void ToggleMover(TScriptInterface<IIMovable> MoverComponent) const;
 
 private:
 	UPROPERTY()

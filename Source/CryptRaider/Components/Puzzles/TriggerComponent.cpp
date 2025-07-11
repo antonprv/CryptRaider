@@ -3,6 +3,8 @@
 
 #include "TriggerComponent.h"
 
+#include "CryptRaider/Components/Interfaces/IMovable.h"
+
 #include "UObject/FastReferenceCollector.h"
 
 
@@ -36,7 +38,20 @@ void UTriggerComponent::BeginPlay()
 void UTriggerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
+
+	if (GetFittingActor(KeyActors))
+	{
+		UE_LOG(LogTemp, Display, TEXT("Unlocking"))
+	}
+	else if (!GetFittingActor(KeyActors))
+	{
+		UE_LOG(LogTemp, Display, TEXT("Locking"))
+	}
+}
+
+void UTriggerComponent::ToggleMover(TScriptInterface<IIMovable> MoverComponent) const
+{
+	MoverComponent->SetShouldMove();
 }
 
 AActor* UTriggerComponent::GetFittingActor(TArray<AActor*>& OverlappingActors) const
