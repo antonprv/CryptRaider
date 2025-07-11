@@ -9,9 +9,10 @@ URotatorComponent::URotatorComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	// Make sure to tick together with Mover Components, and offload the game tick.
+	PrimaryComponentTick.TickGroup = TG_DuringPhysics;
 }
+
 
 // Called when the game starts
 void URotatorComponent::BeginPlay()
@@ -39,10 +40,18 @@ void URotatorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	RotateActor(bShouldMove, GameWorld->GetDeltaSeconds());
 }
 
+
 void URotatorComponent::SetShouldMove()
 {
 	bShouldMove = true;
 }
+
+
+bool URotatorComponent::GetShouldMove() const
+{
+	return bShouldMove;
+}
+
 
 void URotatorComponent::RotateActor(const bool& bCanMove, const float& DeltaTimeSeconds)
 {
@@ -61,11 +70,10 @@ void URotatorComponent::RotateActor(const bool& bCanMove, const float& DeltaTime
 	}
 }
 
+
 bool URotatorComponent::RotateToRotation(const FRotator& Start, const FRotator& End, const float & DeltaTimeSeconds)
 {
 	ActorToMove->SetActorRotation(Start);
-
-	MoveSpeed += Acceleration;
 	
 	CurrentRotation = FMath::RInterpTo(
 		Start,

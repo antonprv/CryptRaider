@@ -32,31 +32,23 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	float MoveSpeed {0.f};
-	UPROPERTY(EditAnywhere)
-	float Acceleration {0.f};
-	UPROPERTY(EditAnywhere)
-	bool bShouldMove {false};
-
-	UFUNCTION(NotBlueprintable)
+	
 	virtual void SetShouldMove() override;
+	UFUNCTION(BlueprintCallable)
+	bool GetShouldMove() const;
 
 private:
 	UPROPERTY()
 	AActor* ActorToMove {nullptr};
 	
-	UPROPERTY()
 	FRotator CurrentRotation {0.f, 0.f, 0.f};
-	UPROPERTY()
 	FRotator DefaultRotation {0.f, 0.f, 0.f};
-
-	UPROPERTY()
+	bool bShouldMove {false};
+	
 	bool bIsMovingFinished {false};
 	UPROPERTY()
 	UWorld* GameWorld {nullptr};
 	
-	UFUNCTION(NotBlueprintable)
 	void RotateActor(const bool& bCanMove, const float& DeltaTimeSeconds);
-
-	UFUNCTION(NotBlueprintable)
 	bool RotateToRotation (const FRotator& Start, const FRotator& End, const float & DeltaTimeSeconds);
 };

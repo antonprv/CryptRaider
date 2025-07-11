@@ -42,13 +42,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Grab trace result",
 		meta = (Tooltip = "Hit Result of Sphere Trace from camera, it is never empty, use bool Has hit for checking"))
 	FHitResult GrabResult;
-
-	UFUNCTION(BlueprintCallable, Category= "Physics|Traces", meta = (Keywords = "Sweep Sphere Grab",
-		Tooltip="Does a sphere trace from camera view, returns first object hit and hit result, can also draw debug line"))
-	void TraceFromCamera (const float& TraceDistance, const float& SphereRadius,
-		FVector& OutStartTrace, FVector& OutEndTrace,
-		FHitResult& OutHitResult, bool& OutIsHit,
-		const bool& bIsDebugging = false);
+	
+	
 
 	UFUNCTION(BlueprintCallable, Category = "Physics|Grab", meta = (Keywords = "Input Grab",
 		Tooltip = "Signals to grab object using physics handle"))
@@ -59,7 +54,6 @@ public:
 	void Release();
 	
 private:
-	UPROPERTY()
 	bool bIsValid {true};
 	UPROPERTY()
 	AActor* OwningActor {nullptr};
@@ -67,16 +61,16 @@ private:
 	UCameraComponent* OwnerCamera {nullptr};
 	UPROPERTY()
 	UPhysicsHandleComponent* GrabHandle {nullptr};
-	UPROPERTY()
 	FVector GrabStart {0.f, 0.f, 0.f};
-	UPROPERTY()
 	FVector GrabEnd {0.f, 0.f, 0.f};
-	UPROPERTY()
 	bool bIsGrabbing {false};
+
+	void TraceFromCamera (const float& TraceDistance, const float& SphereRadius,
+			FVector& OutStartTrace, FVector& OutEndTrace,
+			FHitResult& OutHitResult, bool& OutIsHit,
+			const bool& bIsDebugging = false);
 	
-	UFUNCTION()
 	void KeepGrabbing() const;
-	UFUNCTION()
 	void DrawDebug(const float& TraceDistance,  const float& SphereRadius,
 		const FVector& StartTrace, const FVector& EndTrace);
 };

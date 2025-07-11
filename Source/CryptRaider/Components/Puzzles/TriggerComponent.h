@@ -38,17 +38,18 @@ public:
 		meta = (Tooltip = "All actors (or components) with the KeyTag"))
 	TArray<AActor*> KeyActors {nullptr};
 
-	UFUNCTION(BlueprintCallable, Category="ObjectDetection", meta=(Tooltip="Make the IMovable object move"))
-	void ToggleMover(TScriptInterface<IIMovable> MoverComponent) const;
+	UFUNCTION(BlueprintCallable)
+	bool GetWantsToTrigger() const;
+	UFUNCTION(BlueprintCallable, meta=(MustImplement="IIMovable"))
+	void TriggerMover (UObject* IMovableActor);
 
 private:
-	UPROPERTY()
 	bool bDoneOnce {false};
-
-	UFUNCTION()
+	UPROPERTY()
+	AActor* KeyActor {nullptr};
+	bool bWantsToTrigger {false};
+	
 	AActor* GetFittingActor(TArray<AActor*>& OverlappingActors) const;
-	UFUNCTION()
-	void DebugShowFitActor(AActor* Key) const;
-	UFUNCTION()
-	void DebugShowFitActorWithComponent(AActor* Key) const;
+	void DebugShowFitActor(const AActor* Key) const;
+	void DebugShowFitActorWithComponent(const AActor* Key) const;
 };

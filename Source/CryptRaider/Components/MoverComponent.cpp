@@ -11,6 +11,8 @@ UMoverComponent::UMoverComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+	// Make sure to tick together with Mover Components, and offload the game tick.
+	PrimaryComponentTick.TickGroup = TG_DuringPhysics;
 
 	// ...
 }
@@ -49,6 +51,12 @@ void UMoverComponent::SetShouldMove()
 }
 
 
+bool UMoverComponent::GetShouldMove() const
+{
+	return bShouldMove;
+}
+
+
 void UMoverComponent::MoveActor(const bool & bCanMove, const float & DeltaTimeSeconds)
 {
 	if (bIsMovingFinished || FMath::IsNearlyZero(DeltaTimeSeconds))
@@ -67,12 +75,9 @@ void UMoverComponent::MoveActor(const bool & bCanMove, const float & DeltaTimeSe
 }
 
 
-
 bool UMoverComponent::MoveToLocation(const FVector& Start, const FVector& End, const float& DeltaTimeSeconds)
 {
 	ActorToMove->SetActorLocation(Start);
-
-	MoveSpeed += Acceleration;
 	
 	CurrentLocation = FMath::VInterpTo(
 		Start,

@@ -3,6 +3,8 @@
 
 #include "TriggerComponent.h"
 
+#include "AssetTypeCategories.h"
+
 #include "CryptRaider/Components/Interfaces/IMovable.h"
 
 #include "UObject/FastReferenceCollector.h"
@@ -11,9 +13,12 @@
 // Sets default values for this component's properties
 UTriggerComponent::UTriggerComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
+	// Set this component to be initialized when the game starts, and to be ticked every frame.
+	// You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+	// Make sure to tick together with Mover Components, and offload the game tick.
+	PrimaryComponentTick.TickGroup = TG_DuringPhysics;
 
 	Super::SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
@@ -39,20 +44,22 @@ void UTriggerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (GetFittingActor(KeyActors))
+	KeyActor = GetFittingActor(KeyActors);
+	if (KeyActor != nullptr)
 	{
-		UE_LOG(LogTemp, Display, TEXT("Unlocking"))
+		bWantsToTrigger = true;
 	}
-	else if (!GetFittingActor(KeyActors))
+	else if (KeyActor == nullptr)
 	{
-		UE_LOG(LogTemp, Display, TEXT("Locking"))
+		bWantsToTrigger = false;
 	}
 }
 
-void UTriggerComponent::ToggleMover(TScriptInterface<IIMovable> MoverComponent) const
+bool UTriggerComponent::GetWantsToTrigger() const
 {
-	MoverComponent->SetShouldMove();
+	return bWantsToTrigger;
 }
+
 
 AActor* UTriggerComponent::GetFittingActor(TArray<AActor*>& OverlappingActors) const
 {
@@ -73,7 +80,16 @@ AActor* UTriggerComponent::GetFittingActor(TArray<AActor*>& OverlappingActors) c
 	return nullptr;
 }
 
-void UTriggerComponent::DebugShowFitActor(AActor* Key) const
+void UTriggerComponent::TriggerMover (UObject* IMovableActor)
+{
+	IIMovable* IMovableCasted = Cast<IIMovable>(IMovableActor);
+	if (IMovableCasted != nullptr)
+	{
+		IMovableCasted->SetShouldMove();
+	}
+}
+
+void UTriggerComponent::DebugShowFitActor(const AActor* Key) const
 {
 	if (bIsDebugEnabled)
 	{
@@ -82,7 +98,7 @@ void UTriggerComponent::DebugShowFitActor(AActor* Key) const
 	}
 }
 
-void UTriggerComponent::DebugShowFitActorWithComponent(AActor* Key) const
+void UTriggerComponent::DebugShowFitActorWithComponent(const AActor* Key) const
 {
 	if (bIsDebugEnabled)
 	{

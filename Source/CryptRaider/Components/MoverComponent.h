@@ -33,30 +33,23 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 	float MoveSpeed {0.f};
-	UPROPERTY(EditAnywhere)
-	float Acceleration {0.f};
-	UPROPERTY(EditAnywhere)
-	bool bShouldMove {false};
 	
-	UFUNCTION(NotBlueprintable)
 	virtual void SetShouldMove() override;
+	UFUNCTION(BlueprintCallable)
+	bool GetShouldMove() const;
 
 private:
 	UPROPERTY()
 	AActor* ActorToMove {nullptr};
-	UPROPERTY()
-	FVector CurrentLocation {0.f, 0.f, 0.f};
-	UPROPERTY()
-	FVector DefaultLocation {0.f, 0.f, 0.f};
 	
-	UPROPERTY()
+	FVector CurrentLocation {0.f, 0.f, 0.f};
+	FVector DefaultLocation {0.f, 0.f, 0.f};
+	bool bShouldMove {false};
+	
 	bool bIsMovingFinished {false};
 	UPROPERTY()
 	UWorld* GameWorld {nullptr};
 	
-	UFUNCTION(NotBlueprintable)
 	void MoveActor(const bool& bCanMove, const float & DeltaTimeSeconds);
-	
-	UFUNCTION(NotBlueprintable)
 	bool MoveToLocation (const FVector& Start, const FVector& End, const float & DeltaTimeSeconds);
 };
