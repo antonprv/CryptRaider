@@ -52,5 +52,5 @@ private:
 	UWorld* GameWorld {nullptr};
 	
 	void MoveActor(const bool& bCanMove, const float & DeltaTimeSeconds);
-	bool MoveToLocation (FVector& Start, const FVector& End, const float & DeltaTimeSeconds) const;
+	bool MoveToLocation (const FVector& End, const float & DeltaTimeSeconds);
 };

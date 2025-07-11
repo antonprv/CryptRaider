@@ -47,12 +47,14 @@ void UMoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 void UMoverComponent::SetShouldMove()
 {
-	bShouldMove = true;
+	this->bShouldMove = true;
+	this->bIsMovingFinished = false;
 }
 
 void UMoverComponent::SetShouldNotMove()
 {
-	bShouldMove = false;
+	this->bShouldMove = false;
+	this->bIsMovingFinished = false;
 }
 
 
@@ -71,26 +73,26 @@ void UMoverComponent::MoveActor(const bool & bCanMove, const float & DeltaTimeSe
 
 	if (bCanMove)
 	{
-		bIsMovingFinished = MoveToLocation(CurrentLocation, TargetLocation, DeltaTimeSeconds);
+		bIsMovingFinished = MoveToLocation(TargetLocation, DeltaTimeSeconds);
 	}
 	else if (!bCanMove)
 	{
-		bIsMovingFinished = MoveToLocation(CurrentLocation, DefaultLocation, DeltaTimeSeconds);
+		bIsMovingFinished = MoveToLocation(DefaultLocation, DeltaTimeSeconds);
 	}
 }
 
 
-bool UMoverComponent::MoveToLocation(FVector& Start, const FVector& End, const float& DeltaTimeSeconds) const
+bool UMoverComponent::MoveToLocation(const FVector& End, const float& DeltaTimeSeconds)
 {
-	ActorToMove->SetActorLocation(Start);
+	ActorToMove->SetActorLocation(CurrentLocation);
 	
-	Start = FMath::VInterpTo(
-		Start,
+	CurrentLocation = FMath::VInterpTo(
+		CurrentLocation,
 		End,
 		DeltaTimeSeconds,
 		MoveSpeed);
 
-	if (Start.Equals(End))
+	if (CurrentLocation.Equals(End))
 	{
 		return true;
 	}
