@@ -31,10 +31,6 @@ void UMoverComponent::BeginPlay()
 
 	DefaultLocation = ActorToMove->GetActorLocation();
 	CurrentLocation = DefaultLocation;
-
-	DefaultRotation = ActorToMove->GetActorRotation();
-	CurrentRotation = DefaultRotation;
-	
 }
 
 
@@ -44,7 +40,7 @@ void UMoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	MoveActor(bShouldMove, GameWorld->GetDeltaSeconds());
-	RotateActor(bShouldMove, GameWorld->GetDeltaSeconds());
+	
 }
 
 void UMoverComponent::SetShouldMove()
@@ -70,24 +66,9 @@ void UMoverComponent::MoveActor(const bool & bCanMove, const float & DeltaTimeSe
 	}
 }
 
-void UMoverComponent::RotateActor(const bool& bCanMove, const float& DeltaTimeSeconds)
-{
-	if (bIsMovingFinished || FMath::IsNearlyZero(DeltaTimeSeconds))
-	{
-		return;
-	}
 
-	if (bCanMove)
-	{
-		bIsMovingFinished = RotateToRotation(CurrentRotation, TargetRotation, DeltaTimeSeconds);
-	}
-	else if (!bCanMove)
-	{
-		bIsMovingFinished = RotateToRotation(CurrentRotation, DefaultRotation, DeltaTimeSeconds);
-	}
-}
 
-bool UMoverComponent::MoveToLocation(FVector& Start, const FVector& End, const float& DeltaTimeSeconds)
+bool UMoverComponent::MoveToLocation(const FVector& Start, const FVector& End, const float& DeltaTimeSeconds)
 {
 	ActorToMove->SetActorLocation(Start);
 
@@ -105,24 +86,3 @@ bool UMoverComponent::MoveToLocation(FVector& Start, const FVector& End, const f
 	}
 	return false;
 }
-
-bool UMoverComponent::RotateToRotation(FRotator& Start, const FRotator& End, const float & DeltaTimeSeconds)
-{
-	ActorToMove->SetActorRotation(Start);
-
-	MoveSpeed += Acceleration;
-	
-	CurrentRotation = FMath::RInterpTo(
-		Start,
-		End,
-		DeltaTimeSeconds,
-		MoveSpeed);
-
-	if (Start.Equals(End))
-	{
-		return true;
-	}
-	return false;
-}
-
-
