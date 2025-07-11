@@ -49,8 +49,6 @@ void UMoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 void UMoverComponent::SetShouldMove()
 {
-	IIMovable::SetShouldMove();
-	
 	bShouldMove = true;
 }
 
