@@ -11,7 +11,7 @@ UTriggerComponent::UTriggerComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 
 	Super::SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
@@ -36,17 +36,11 @@ void UTriggerComponent::BeginPlay()
 void UTriggerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
-// 	this->GetOverlappingActors(OverlappingActors);
-// 	this->GetOverlappingComponents(OverlappingComponents);
-//
-// 	for (const AActor* Element : OverlappingActors)
-// 	{
-// 		UE_LOG(LogTemp, Display, TEXT("%s"), *Element->GetName())
-// 	}
-// 	
-// 	for (const UPrimitiveComponent* Element : OverlappingComponents)
-// 	{
-// 		UE_LOG(LogTemp, Display, TEXT("%s"), *Element->GetName())
-// 	}
+
+	this->GetOverlappingActors(OverlappingActors);
+
+	for (AActor* Actor : OverlappingActors)
+	{
+		UE_LOG(LogTemp, Display, TEXT("%s"), *Actor->GetActorNameOrLabel())
+	}
 }
