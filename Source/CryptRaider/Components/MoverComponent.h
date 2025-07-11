@@ -6,7 +6,7 @@
 
 #include "Components/ActorComponent.h"
 
-#include "Interfaces/IMovable.h"
+#include "CryptRaider/Components/Interfaces/IMovable.h"
 
 #include "MoverComponent.generated.h"
 
@@ -35,6 +35,7 @@ public:
 	float MoveSpeed {0.f};
 	
 	virtual void SetShouldMove() override;
+	virtual void SetShouldNotMove() override;
 	UFUNCTION(BlueprintCallable)
 	bool GetShouldMove() const;
 
@@ -51,5 +52,5 @@ private:
 	UWorld* GameWorld {nullptr};
 	
 	void MoveActor(const bool& bCanMove, const float & DeltaTimeSeconds);
-	bool MoveToLocation (const FVector& Start, const FVector& End, const float & DeltaTimeSeconds);
+	bool MoveToLocation (FVector& Start, const FVector& End, const float & DeltaTimeSeconds) const;
 };

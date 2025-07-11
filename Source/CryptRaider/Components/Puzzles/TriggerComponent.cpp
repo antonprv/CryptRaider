@@ -55,11 +55,6 @@ void UTriggerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	}
 }
 
-bool UTriggerComponent::GetWantsToTrigger() const
-{
-	return bWantsToTrigger;
-}
-
 
 AActor* UTriggerComponent::GetFittingActor(TArray<AActor*>& OverlappingActors) const
 {
@@ -80,12 +75,15 @@ AActor* UTriggerComponent::GetFittingActor(TArray<AActor*>& OverlappingActors) c
 	return nullptr;
 }
 
-void UTriggerComponent::TriggerMover (UObject* IMovableActor)
+void UTriggerComponent::TriggerMover (const TScriptInterface<IIMovable> IMovableActor) const
 {
-	IIMovable* IMovableCasted = Cast<IIMovable>(IMovableActor);
-	if (IMovableCasted != nullptr)
+	if (bWantsToTrigger)
 	{
-		IMovableCasted->SetShouldMove();
+		IMovableActor->SetShouldMove();
+	}
+	else if (!bWantsToTrigger)
+	{
+		IMovableActor->SetShouldNotMove();
 	}
 }
 

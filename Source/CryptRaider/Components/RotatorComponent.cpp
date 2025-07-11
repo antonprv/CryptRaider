@@ -24,9 +24,9 @@ void URotatorComponent::BeginPlay()
 	GameWorld = GetWorld();
 	if (GameWorld == nullptr)
 	{
-		bShouldMove = false;
+		bShouldMove = true;
 	}
-
+	
 	DefaultRotation = ActorToMove->GetActorRotation();
 	CurrentRotation = DefaultRotation;
 }
@@ -43,7 +43,14 @@ void URotatorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 void URotatorComponent::SetShouldMove()
 {
-	bShouldMove = true;
+	this->bShouldMove = true;
+	this->bIsMovingFinished = false;
+}
+
+void URotatorComponent::SetShouldNotMove()
+{
+	this->bShouldMove = false;
+	this->bIsMovingFinished = false;
 }
 
 
@@ -62,26 +69,26 @@ void URotatorComponent::RotateActor(const bool& bCanMove, const float& DeltaTime
 
 	if (bCanMove)
 	{
-		bIsMovingFinished = RotateToRotation(CurrentRotation, TargetRotation, DeltaTimeSeconds);
+		bIsMovingFinished = RotateToRotation(TargetRotation, DeltaTimeSeconds);
 	}
 	else if (!bCanMove)
 	{
-		bIsMovingFinished = RotateToRotation(CurrentRotation, DefaultRotation, DeltaTimeSeconds);
+		bIsMovingFinished = RotateToRotation(DefaultRotation, DeltaTimeSeconds);
 	}
 }
 
 
-bool URotatorComponent::RotateToRotation(const FRotator& Start, const FRotator& End, const float & DeltaTimeSeconds)
+bool URotatorComponent::RotateToRotation(const FRotator& End, const float & DeltaTimeSeconds)
 {
-	ActorToMove->SetActorRotation(Start);
+	ActorToMove->SetActorRotation(CurrentRotation);
 	
 	CurrentRotation = FMath::RInterpTo(
-		Start,
+		CurrentRotation,
 		End,
 		DeltaTimeSeconds,
 		MoveSpeed);
-
-	if (Start.Equals(End))
+	
+	if (CurrentRotation.Equals(End))
 	{
 		return true;
 	}

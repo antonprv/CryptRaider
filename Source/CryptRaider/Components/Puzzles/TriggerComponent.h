@@ -6,9 +6,11 @@
 
 #include "Components/BoxComponent.h"
 
+#include "CryptRaider/Components/Interfaces/IMovable.h"
+
+
 #include "TriggerComponent.generated.h"
 
-class IIMovable;
 /**
  * 
  */
@@ -37,11 +39,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category="Object Detection",
 		meta = (Tooltip = "All actors (or components) with the KeyTag"))
 	TArray<AActor*> KeyActors {nullptr};
-
-	UFUNCTION(BlueprintCallable)
-	bool GetWantsToTrigger() const;
+	
 	UFUNCTION(BlueprintCallable, meta=(MustImplement="IIMovable"))
-	void TriggerMover (UObject* IMovableActor);
+	void TriggerMover (TScriptInterface<IIMovable> IMovableActor) const;
 
 private:
 	bool bDoneOnce {false};

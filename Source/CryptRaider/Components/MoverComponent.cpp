@@ -50,6 +50,11 @@ void UMoverComponent::SetShouldMove()
 	bShouldMove = true;
 }
 
+void UMoverComponent::SetShouldNotMove()
+{
+	bShouldMove = false;
+}
+
 
 bool UMoverComponent::GetShouldMove() const
 {
@@ -75,11 +80,11 @@ void UMoverComponent::MoveActor(const bool & bCanMove, const float & DeltaTimeSe
 }
 
 
-bool UMoverComponent::MoveToLocation(const FVector& Start, const FVector& End, const float& DeltaTimeSeconds)
+bool UMoverComponent::MoveToLocation(FVector& Start, const FVector& End, const float& DeltaTimeSeconds) const
 {
 	ActorToMove->SetActorLocation(Start);
 	
-	CurrentLocation = FMath::VInterpTo(
+	Start = FMath::VInterpTo(
 		Start,
 		End,
 		DeltaTimeSeconds,

@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 
-#include "Interfaces/IMovable.h"
+#include "CryptRaider/Components/Interfaces/IMovable.h"
 
 #include "RotatorComponent.generated.h"
 
@@ -34,6 +34,7 @@ public:
 	float MoveSpeed {0.f};
 	
 	virtual void SetShouldMove() override;
+	virtual void SetShouldNotMove() override;
 	UFUNCTION(BlueprintCallable)
 	bool GetShouldMove() const;
 
@@ -43,12 +44,12 @@ private:
 	
 	FRotator CurrentRotation {0.f, 0.f, 0.f};
 	FRotator DefaultRotation {0.f, 0.f, 0.f};
+
 	bool bShouldMove {false};
-	
 	bool bIsMovingFinished {false};
 	UPROPERTY()
 	UWorld* GameWorld {nullptr};
 	
 	void RotateActor(const bool& bCanMove, const float& DeltaTimeSeconds);
-	bool RotateToRotation (const FRotator& Start, const FRotator& End, const float & DeltaTimeSeconds);
+	bool RotateToRotation(const FRotator& End, const float & DeltaTimeSeconds);
 };

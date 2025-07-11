@@ -7,7 +7,7 @@
 #include "IMovable.generated.h"
 
 // This class does not need to be modified.
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI, Blueprintable)
 class UIMovable : public UInterface
 {
 	GENERATED_BODY()
@@ -24,4 +24,6 @@ class CRYPTRAIDER_API IIMovable
 public:
 	UFUNCTION(NotBlueprintable)
 	virtual void SetShouldMove() = 0;
+	UFUNCTION(NotBlueprintable)
+	virtual void SetShouldNotMove() = 0;
 };
