@@ -37,10 +37,30 @@ void UTriggerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	this->GetOverlappingActors(OverlappingActors);
-
-	for (AActor* Actor : OverlappingActors)
+	if (!bDoneOnce)
 	{
-		UE_LOG(LogTemp, Display, TEXT("%s"), *Actor->GetActorNameOrLabel())
+		DebugOverlapping(OverlappingActors);
+		bDoneOnce = true;
 	}
 }
+
+void UTriggerComponent::DebugOverlapping(TArray<AActor*> Actors) const
+{
+	this->GetOverlappingActors(Actors);
+
+	for (const AActor* Actor : Actors)
+	{
+		if (Actor->ActorHasTag(TriggerTag))
+		{
+			UE_LOG(LogTemp, Display, TEXT("%s has key as %s Actor"),
+				*GetOwner()->GetActorNameOrLabel(), *Actor->GetActorNameOrLabel())
+		}
+		else if (Actor->FindComponentByTag<UStaticMeshComponent>(TriggerTag) != nullptr)
+		{
+			UE_LOG(LogTemp, Display, TEXT("%s has key as %s's Component"),
+				*GetOwner()->GetActorNameOrLabel(), *Actor->GetActorNameOrLabel())
+		}
+	}
+}
+
+
