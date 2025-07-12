@@ -29,7 +29,9 @@ public:
 
 	//Sound indicating opening
 	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	TObjectPtr<USoundBase> MoveStartSound;
+	TObjectPtr<USoundBase> MoveStartSound {nullptr};
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	TObjectPtr<USoundBase> MoveEndSound {nullptr};
 	
 	UPROPERTY(EditAnywhere, Category="Actor Rotation", meta=(Tooltip="Target for rotating back and forth on trigger"))
 	FRotator TargetRotation {0.f, 0.f, 0.f};
@@ -57,4 +59,5 @@ private:
 	
 	void RotateActor(const bool& bCanMove, const float& DeltaTimeSeconds);
 	bool RotateToRotation(const FRotator& End, const float & DeltaTimeSeconds);
+	void PlaySound(USoundBase* SoundToPlay);
 };

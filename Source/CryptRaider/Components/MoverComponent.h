@@ -30,7 +30,9 @@ public:
 
 	// Sound indicating opening
 	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	TObjectPtr<USoundBase> MoveStartSound;
+	TObjectPtr<USoundBase> MoveStartSound {nullptr};
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	TObjectPtr<USoundBase> MoveEndSound {nullptr};
 	
 	UPROPERTY(EditAnywhere, Category="Actor Movement", meta=(Tooltip="Target for moving back and forth on trigger"))
 	FVector TargetLocation {0.f, 0.f, 0.f};
@@ -58,4 +60,5 @@ private:
 	
 	void MoveActor(const bool& bCanMove, const float & DeltaTimeSeconds);
 	bool MoveToLocation (const FVector& End, const float & DeltaTimeSeconds);
+	void PlaySound(USoundBase* SoundToPlay);
 };

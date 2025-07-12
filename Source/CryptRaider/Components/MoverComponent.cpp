@@ -43,21 +43,14 @@ void UMoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 void UMoverComponent::SetShouldMove()
 {
+	PlaySound(MoveStartSound);
 	this->bShouldMove = true;
 	this->bIsMovingFinished = false;
-
-	if (MoveStartSound && GetWorld())
-	{
-		UGameplayStatics::PlaySoundAtLocation(
-			this, 
-			MoveStartSound, 
-			GetOwner()->GetActorLocation() // Play at the owner's location
-		);
-	}
 }
 
 void UMoverComponent::SetShouldNotMove()
 {
+	PlaySound(MoveEndSound);
 	this->bShouldMove = false;
 	this->bIsMovingFinished = false;
 }
@@ -102,4 +95,17 @@ bool UMoverComponent::MoveToLocation(const FVector& End, const float& DeltaTimeS
 		return true;
 	}
 	return false;
+}
+
+
+void UMoverComponent::PlaySound(USoundBase* SoundToPlay)
+{
+	if (MoveStartSound && GetWorld())
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			this, 
+			SoundToPlay, 
+			GetOwner()->GetActorLocation() // Play at the owner's location
+		);
+	}
 }

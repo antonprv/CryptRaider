@@ -77,7 +77,6 @@ AActor* UTriggerComponent::GetFittingActor(TArray<AActor*>& OverlappingActors) c
 
 void UTriggerComponent::TriggerMover (const TScriptInterface<IIMovable> IMovableActor) const
 {
-
 	if (!IMovableActor)
 	{
 		UE_LOG(LogTemp, Error, TEXT("UTriggerComponent::TriggerMover called with null IMovableActor"));

@@ -40,20 +40,14 @@ void URotatorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 void URotatorComponent::SetShouldMove()
 {
+	PlaySound(MoveStartSound);
 	this->bShouldMove = true;
 	this->bIsMovingFinished = false;
-	if (MoveStartSound && GetWorld())
-	{
-		UGameplayStatics::PlaySoundAtLocation(
-			this, 
-			MoveStartSound, 
-			GetOwner()->GetActorLocation() // Play at the owner's location
-		);
-	}
 }
 
 void URotatorComponent::SetShouldNotMove()
 {
+	PlaySound(MoveEndSound);
 	this->bShouldMove = false;
 	this->bIsMovingFinished = false;
 }
@@ -98,4 +92,16 @@ bool URotatorComponent::RotateToRotation(const FRotator& End, const float & Delt
 		return true;
 	}
 	return false;
+}
+
+void URotatorComponent::PlaySound(USoundBase* SoundToPlay)
+{
+	if (MoveStartSound && GetWorld())
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			this, 
+			SoundToPlay, 
+			GetOwner()->GetActorLocation() // Play at the owner's location
+		);
+	}
 }

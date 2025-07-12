@@ -3,6 +3,8 @@
 
 #include "SecretWall.h"
 
+#include "Kismet/GameplayStatics.h"
+
 // Sets default values
 ASecretWall::ASecretWall()
 {
@@ -31,6 +33,7 @@ void ASecretWall::Tick(float DeltaTime)
 
 void ASecretWall::SetShouldMove()
 {
+	PlaySound(MoveStartSound);
 	if (IsPlayerLookingAtDoor())
 	{
 		SecretDoorMesh->SetVisibility(false);
@@ -41,6 +44,7 @@ void ASecretWall::SetShouldMove()
 
 void ASecretWall::SetShouldNotMove()
 {
+	PlaySound(MoveEndSound);
 	if (!IsPlayerLookingAtDoor())
 	{
 		SecretDoorMesh->SetVisibility(true);
@@ -69,4 +73,16 @@ bool ASecretWall::IsPlayerLookingAtDoor() const
 	float DotProduct = FVector::DotProduct(LookDirection, ToDoor);
 	
 	return DotProduct < QuantumEffectPercentage;
+}
+
+void ASecretWall::PlaySound(USoundBase* SoundToPlay)
+{
+	if (MoveStartSound && GetWorld())
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			this, 
+			SoundToPlay, 
+			GetOwner()->GetActorLocation() // Play at the owner's location
+		);
+	}
 }
