@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 
-#include "CryptRaider/Components/Interfaces/IMovable.h"
+#include "Interfaces/IMovable.h"
 
 #include "RotatorComponent.generated.h"
 
@@ -27,14 +27,21 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	//Sound indicating opening
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	TObjectPtr<USoundBase> MoveStartSound;
+	
 	UPROPERTY(EditAnywhere, Category="Actor Rotation", meta=(Tooltip="Target for rotating back and forth on trigger"))
 	FRotator TargetRotation {0.f, 0.f, 0.f};
 
 	UPROPERTY(EditAnywhere)
 	float MoveSpeed {0.f};
-	
+
+	UFUNCTION(NotBlueprintable)
 	virtual void SetShouldMove() override;
+	UFUNCTION(NotBlueprintable)
 	virtual void SetShouldNotMove() override;
+	
 	UFUNCTION(BlueprintCallable)
 	bool GetShouldMove() const;
 
@@ -44,11 +51,9 @@ private:
 	
 	FRotator CurrentRotation {0.f, 0.f, 0.f};
 	FRotator DefaultRotation {0.f, 0.f, 0.f};
-
+	
 	bool bShouldMove {false};
 	bool bIsMovingFinished {false};
-	UPROPERTY()
-	UWorld* GameWorld {nullptr};
 	
 	void RotateActor(const bool& bCanMove, const float& DeltaTimeSeconds);
 	bool RotateToRotation(const FRotator& End, const float & DeltaTimeSeconds);

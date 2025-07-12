@@ -3,6 +3,8 @@
 
 #include "MoverComponent.h"
 
+#include "Kismet/GameplayStatics.h"
+
 #include "Math/UnrealMathUtility.h"
 
 // Sets default values for this component's properties
@@ -25,12 +27,6 @@ void UMoverComponent::BeginPlay()
 
 	// Not validating actor, because there can not be an ActorComponent without an Actor
 	ActorToMove = GetOwner();
-	GameWorld = GetWorld();
-	if (GameWorld == nullptr)
-	{
-		bShouldMove = false;
-	}
-
 	DefaultLocation = ActorToMove->GetActorLocation();
 	CurrentLocation = DefaultLocation;
 }
@@ -41,7 +37,7 @@ void UMoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	MoveActor(bShouldMove, GameWorld->GetDeltaSeconds());
+	MoveActor(bShouldMove, DeltaTime);
 	
 }
 
@@ -49,6 +45,15 @@ void UMoverComponent::SetShouldMove()
 {
 	this->bShouldMove = true;
 	this->bIsMovingFinished = false;
+
+	if (MoveStartSound && GetWorld())
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			this, 
+			MoveStartSound, 
+			GetOwner()->GetActorLocation() // Play at the owner's location
+		);
+	}
 }
 
 void UMoverComponent::SetShouldNotMove()
@@ -92,7 +97,7 @@ bool UMoverComponent::MoveToLocation(const FVector& End, const float& DeltaTimeS
 		DeltaTimeSeconds,
 		MoveSpeed);
 
-	if (CurrentLocation.Equals(End))
+	if (CurrentLocation.Equals(End, 0.5f))
 	{
 		return true;
 	}

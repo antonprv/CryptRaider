@@ -6,7 +6,7 @@
 
 #include "Components/ActorComponent.h"
 
-#include "CryptRaider/Components/Interfaces/IMovable.h"
+#include "Interfaces/IMovable.h"
 
 #include "MoverComponent.generated.h"
 
@@ -24,18 +24,25 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	// Sound indicating opening
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	TObjectPtr<USoundBase> MoveStartSound;
 	
 	UPROPERTY(EditAnywhere, Category="Actor Movement", meta=(Tooltip="Target for moving back and forth on trigger"))
 	FVector TargetLocation {0.f, 0.f, 0.f};
 	
 	UPROPERTY(EditAnywhere)
 	float MoveSpeed {0.f};
-	
+
+	UFUNCTION(NotBlueprintable)
 	virtual void SetShouldMove() override;
+	UFUNCTION(NotBlueprintable)
 	virtual void SetShouldNotMove() override;
+	
 	UFUNCTION(BlueprintCallable)
 	bool GetShouldMove() const;
 
@@ -45,11 +52,9 @@ private:
 	
 	FVector CurrentLocation {0.f, 0.f, 0.f};
 	FVector DefaultLocation {0.f, 0.f, 0.f};
-	bool bShouldMove {false};
 	
+	bool bShouldMove {false};
 	bool bIsMovingFinished {false};
-	UPROPERTY()
-	UWorld* GameWorld {nullptr};
 	
 	void MoveActor(const bool& bCanMove, const float & DeltaTimeSeconds);
 	bool MoveToLocation (const FVector& End, const float & DeltaTimeSeconds);

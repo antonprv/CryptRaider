@@ -3,6 +3,9 @@
 
 #include "RotatorComponent.h"
 
+#include "Kismet/GameplayStatics.h"
+
+
 // Sets default values for this component's properties
 URotatorComponent::URotatorComponent()
 {
@@ -21,12 +24,6 @@ void URotatorComponent::BeginPlay()
 
 	// Not validating actor, because there can not be an ActorComponent without an Actor
 	ActorToMove = GetOwner();
-	GameWorld = GetWorld();
-	if (GameWorld == nullptr)
-	{
-		bShouldMove = true;
-	}
-	
 	DefaultRotation = ActorToMove->GetActorRotation();
 	CurrentRotation = DefaultRotation;
 }
@@ -37,7 +34,7 @@ void URotatorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	RotateActor(bShouldMove, GameWorld->GetDeltaSeconds());
+	RotateActor(bShouldMove, DeltaTime);
 }
 
 
@@ -45,6 +42,14 @@ void URotatorComponent::SetShouldMove()
 {
 	this->bShouldMove = true;
 	this->bIsMovingFinished = false;
+	if (MoveStartSound && GetWorld())
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			this, 
+			MoveStartSound, 
+			GetOwner()->GetActorLocation() // Play at the owner's location
+		);
+	}
 }
 
 void URotatorComponent::SetShouldNotMove()
@@ -88,7 +93,7 @@ bool URotatorComponent::RotateToRotation(const FRotator& End, const float & Delt
 		DeltaTimeSeconds,
 		MoveSpeed);
 	
-	if (CurrentRotation.Equals(End))
+	if (CurrentRotation.Equals(End, 0.5f))
 	{
 		return true;
 	}
