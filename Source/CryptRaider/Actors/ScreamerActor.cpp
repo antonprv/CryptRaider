@@ -1,70 +1,62 @@
 // Made by Antosh (anton.prv), derivative work strictly prohibited, except for non-commercial use.
 
 
-#include "SecretWall.h"
+#include "ScreamerActor.h"
 
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
-ASecretWall::ASecretWall()
+AScreamerActor::AScreamerActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
-	SecretDoorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SecretDoorMesh"));
-	RootComponent = SecretDoorMesh;
-	SecretDoorMesh->SetGenerateOverlapEvents(true);
 }
-
 
 // Called when the game starts or when spawned
-void ASecretWall::BeginPlay()
+void AScreamerActor::BeginPlay()
 {
 	Super::BeginPlay();
-}
-
-void ASecretWall::OnSetShouldMove_Implementation()
-{
-	UE_LOG(LogTemp, Warning, TEXT("OnSetShouldMove is not implemented"))
-}
-
-void ASecretWall::OnSetShouldNotMove_Implementation()
-{
-	UE_LOG(LogTemp, Warning, TEXT("OnSetShouldNotMove is not implemented"))
+	
 }
 
 // Called every frame
-void ASecretWall::Tick(float DeltaTime)
+void AScreamerActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
-
-void ASecretWall::SetShouldMove()
+void AScreamerActor::SetShouldMove()
 {
-	PlaySound(MoveStartSound);
-	if (!IsPlayerLookingAtDoor())
+	if (!IsPlayerLooking())
 	{
-		SecretDoorMesh->SetVisibility(false);
-		SecretDoorMesh->SetCollisionResponseToAllChannels(ECR_Overlap);
+		PlaySound(OnMoveSound);
 		OnSetShouldMove();
 	}
 }
 
-void ASecretWall::SetShouldNotMove()
+void AScreamerActor::SetShouldNotMove()
 {
-	PlaySound(MoveEndSound);
-	if (!IsPlayerLookingAtDoor())
+	if (!IsPlayerLooking())
 	{
-		SecretDoorMesh->SetVisibility(true);
-		SecretDoorMesh->SetCollisionResponseToAllChannels(ECR_Block);
-		OnSetShouldNotMove();
+		PlaySound(OnExitMoveSound);
+		OnSetShouldMove();
 	}
 }
 
+void AScreamerActor::OnSetShouldMove_Implementation()
+{
+    UE_LOG(LogTemp, Warning, TEXT("OnSetShouldMove_Implementation: This function currently does nothing."));
+}
 
-bool ASecretWall::IsPlayerLookingAtDoor() const
+void AScreamerActor::OnSetShouldNotMove_Implementation()
+{
+    UE_LOG(LogTemp, Warning, TEXT("OnSetShouldNotMove_Implementation: This function currently does nothing."));
+}
+
+
+bool AScreamerActor::IsPlayerLooking() const
 {
 	const APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	if (!PlayerController) return false;
@@ -75,7 +67,7 @@ bool ASecretWall::IsPlayerLookingAtDoor() const
 	PlayerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
     
 	// Calculate direction to door
-	const FVector DoorLocation = SecretDoorMesh->GetComponentLocation();
+	const FVector DoorLocation = this->GetActorLocation();
 	const FVector ToDoor = (DoorLocation - CameraLocation).GetSafeNormal();
 	const FVector LookDirection = CameraRotation.Vector();
 
@@ -85,7 +77,7 @@ bool ASecretWall::IsPlayerLookingAtDoor() const
 	return DotProduct > QuantumEffectPercentage;
 }
 
-void ASecretWall::PlaySound(USoundBase* SoundToPlay)
+void AScreamerActor::PlaySound(USoundBase* SoundToPlay) const
 {
 	if (SoundToPlay && GetWorld())
 	{
