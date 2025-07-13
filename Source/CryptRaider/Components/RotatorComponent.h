@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 
-#include "Interfaces/IMovable.h"
+#include "Interfaces/Movable.h"
 
 #include "RotatorComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class CRYPTRAIDER_API URotatorComponent : public UActorComponent, public IIMovable
+class CRYPTRAIDER_API URotatorComponent : public UActorComponent, public IMovable
 {
 	GENERATED_BODY()
 

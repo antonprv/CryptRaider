@@ -23,6 +23,16 @@ void ASecretWall::BeginPlay()
 	Super::BeginPlay();
 }
 
+void ASecretWall::OnSetShouldMove_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnSetShouldMove is not implemented"))
+}
+
+void ASecretWall::OnSetShouldNotMove_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnSetShouldNotMove is not implemented"))
+}
+
 // Called every frame
 void ASecretWall::Tick(float DeltaTime)
 {
@@ -45,7 +55,7 @@ void ASecretWall::SetShouldMove()
 void ASecretWall::SetShouldNotMove()
 {
 	PlaySound(MoveEndSound);
-	if (!IsPlayerLookingAtDoor())
+	if (IsPlayerLookingAtDoor())
 	{
 		SecretDoorMesh->SetVisibility(true);
 		SecretDoorMesh->SetCollisionResponseToAllChannels(ECR_Block);
@@ -77,7 +87,7 @@ bool ASecretWall::IsPlayerLookingAtDoor() const
 
 void ASecretWall::PlaySound(USoundBase* SoundToPlay)
 {
-	if (MoveStartSound && GetWorld())
+	if (SoundToPlay && GetWorld())
 	{
 		UGameplayStatics::PlaySoundAtLocation(
 			this, 

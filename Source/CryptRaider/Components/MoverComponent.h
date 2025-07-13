@@ -6,13 +6,13 @@
 
 #include "Components/ActorComponent.h"
 
-#include "Interfaces/IMovable.h"
+#include "Interfaces/Movable.h"
 
 #include "MoverComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class CRYPTRAIDER_API UMoverComponent : public UActorComponent, public IIMovable
+class CRYPTRAIDER_API UMoverComponent : public UActorComponent, public IMovable
 {
 	GENERATED_BODY()
 

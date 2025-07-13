@@ -5,7 +5,7 @@
 
 #include "AssetTypeCategories.h"
 
-#include "CryptRaider/Components/Interfaces/IMovable.h"
+#include "CryptRaider/Components/Interfaces/Movable.h"
 
 #include "UObject/FastReferenceCollector.h"
 
@@ -75,7 +75,7 @@ AActor* UTriggerComponent::GetFittingActor(TArray<AActor*>& OverlappingActors) c
 	return nullptr;
 }
 
-void UTriggerComponent::TriggerMover (const TScriptInterface<IIMovable> IMovableActor) const
+void UTriggerComponent::TriggerMover (const TScriptInterface<IMovable> IMovableActor) const
 {
 	if (!IMovableActor)
 	{

@@ -6,7 +6,7 @@
 
 #include "Components/BoxComponent.h"
 
-#include "CryptRaider/Components/Interfaces/IMovable.h"
+#include "CryptRaider/Components/Interfaces/Movable.h"
 
 
 #include "TriggerComponent.generated.h"
@@ -41,7 +41,7 @@ public:
 	TArray<AActor*> KeyActors {nullptr};
 	
 	UFUNCTION(BlueprintCallable, meta=(MustImplement="IIMovable"))
-	void TriggerMover (TScriptInterface<IIMovable> IMovableActor) const;
+	void TriggerMover (TScriptInterface<IMovable> IMovableActor) const;
 
 private:
 	bool bDoneOnce {false};
