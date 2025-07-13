@@ -40,7 +40,7 @@ public:
 		meta = (Tooltip = "All actors (or components) with the KeyTag"))
 	TArray<AActor*> KeyActors {nullptr};
 	
-	UFUNCTION(BlueprintCallable, meta=(MustImplement="IIMovable"))
+	UFUNCTION(BlueprintCallable, meta=(MustImplement="IMovable"))
 	void TriggerMover (TScriptInterface<IMovable> IMovableActor) const;
 
 private:

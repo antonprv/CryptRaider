@@ -9,7 +9,7 @@
 #include "GameFramework/Actor.h"
 #include "ScreamerActor.generated.h"
 
-UCLASS()
+UCLASS( ClassGroup=(Custom), meta=(Blueprintable) )
 class CRYPTRAIDER_API AScreamerActor : public AActor, public IMovable
 {
 	GENERATED_BODY()
