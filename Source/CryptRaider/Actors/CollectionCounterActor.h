@@ -32,9 +32,5 @@ public:
 	int32 CollectiblesAmount {0};
 
 private:
-
-	TArray<AActor*> OverlappingActors {nullptr};
-	TSet<AActor*> FittingActors {nullptr};
-
 	int32 CountCollectables();
 };
