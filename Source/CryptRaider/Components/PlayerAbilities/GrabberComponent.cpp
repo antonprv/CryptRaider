@@ -109,7 +109,7 @@ void UGrabberComponent::Release()
 
 
 void UGrabberComponent::TraceFromCamera(const float& TraceDistance, const float& SphereRadius, FVector& OutStartTrace,
-	FVector& OutEndTrace, FHitResult& OutHitResult, bool& OutIsHit, const bool& bIsDebugging)
+                                        FVector& OutEndTrace, FHitResult& OutHitResult, bool& OutIsHit, const bool& bIsDebugging)
 {
 	if (GetWorld() == nullptr || !bIsValid)
 	{
