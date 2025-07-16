@@ -5,7 +5,7 @@
 
 #include "Components/ShapeComponent.h"
 
-#include "CryptRaider/GlobalInterfaces/CollectionOwner.h"
+#include "GameFramework/Character.h"
 
 ACollectionCounterActor::ACollectionCounterActor()
 {
@@ -47,18 +47,25 @@ void ACollectionCounterActor::Tick(float DeltaTime)
 		CollectiblesAmount = CountCollectables();
 		OnCollectablesFound.Broadcast(CollectiblesAmount);
 	}
+
+	if (CollectiblesAmount == CollectiblesToWin)
+	{
+		// Makes sure that we're only broadcasting this once
+		if (!bDoneOnce)
+		{
+			OnGameWon.Broadcast();
+			bDoneOnce = true;
+		}
+	}
 }
 
 
 void ACollectionCounterActor::OnPlayerEnterOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor && OtherActor->Implements<UCollectionOwner>())
+	if (OtherActor && OtherActor->IsA(ACharacter::StaticClass()))
 	{
-		if (ICollectionOwner* CollectionOwner = Cast<ICollectionOwner>(OtherActor))
-		{
-			CollectionOwner->ShowCollectionWidget();
-		}
+		OnPlayerEnteredTrigger.Broadcast();
 	}
 }
 
@@ -66,12 +73,9 @@ void ACollectionCounterActor::OnPlayerEnterOverlap(UPrimitiveComponent* Overlapp
 void ACollectionCounterActor::OnPlayerExitOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherActor && OtherActor->Implements<UCollectionOwner>())
+	if (OtherActor && OtherActor->IsA(ACharacter::StaticClass()))
 	{
-		if (ICollectionOwner* CollectionOwner = Cast<ICollectionOwner>(OtherActor))
-		{
-			CollectionOwner->HideCollectionWidget();
-		}
+		OnPlayerExitTrigger.Broadcast();
 	}
 }
 

@@ -10,8 +10,10 @@
 
 
 /**
- * 
+ * Check how many collectables did the player bring, and if he brough enough, than he won.
+ * Also, show collectables UI if we're in the zone and hide if we're not.
  */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameWon);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerEnteredTrigger);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerExitTrigger);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCollectablesFound, int32, CollectableAmount);
@@ -36,9 +38,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CollectionCounter", meta=(Tooltip="Collectible tag to check"))
 	FName CollectibleTag {"Gargoyle"};
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CollectionCounter", meta=(Tooltip="Win condition"))
+	int32 CollectiblesToWin {4};
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CollectionCounter | Debug")
 	bool bIsDebugEnabled {false};
-
+	
 	UPROPERTY(BlueprintAssignable, Category = "Collectables")
 	FOnCollectablesFound OnCollectablesFound;
 
@@ -46,8 +51,11 @@ public:
 	FOnPlayerEnteredTrigger OnPlayerEnteredTrigger;
 	UPROPERTY(BlueprintAssignable, Category="Collectables")
 	FOnPlayerExitTrigger OnPlayerExitTrigger;
+	UPROPERTY(BlueprintAssignable, Category="Collectables")
+	FOnGameWon OnGameWon;
 
 private:
+	// Check if player is in the trigger
 	UFUNCTION(NotBlueprintable)
 	void OnPlayerEnterOverlap(
 	UPrimitiveComponent* OverlappedComponent,
@@ -57,14 +65,19 @@ private:
 	bool bFromSweep,
 	const FHitResult& SweepResult);
 	
+	// Check if player exited the trigger
 	UFUNCTION(NotBlueprintable)
 	void OnPlayerExitOverlap(
     UPrimitiveComponent* OverlappedComponent,
     AActor* OtherActor,
     UPrimitiveComponent* OtherComp,
     int32 OtherBodyIndex);
-	
+
+	// Check how many collectibles did player bring
 	int32 CollectiblesAmount {0};
 	UShapeComponent* CollisionComponent {nullptr};
 	int32 CountCollectables() const;
+
+	// Win condition logic
+	bool bDoneOnce {false};
 };
