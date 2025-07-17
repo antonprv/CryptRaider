@@ -16,12 +16,12 @@ ACollectionCounterActor::ACollectionCounterActor()
 	// Can be overriden in derived classes
 	PrimaryActorTick.TickInterval = 1.0f / 30.0f; // 30 Hz = 1/30 seconds per tick
 
-	CollisionComponent = this->GetComponentByClass<UShapeComponent>();
+	CollisionShape = this->GetComponentByClass<UShapeComponent>();
 	
-	if (CollisionComponent)
+	if (CollisionShape)
 	{
-		CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &ACollectionCounterActor::OnPlayerEnterOverlap);
-		CollisionComponent->OnComponentEndOverlap.AddDynamic(this, &ACollectionCounterActor::OnPlayerExitOverlap);
+		CollisionShape->OnComponentBeginOverlap.AddDynamic(this, &ACollectionCounterActor::OnPlayerEnterOverlap);
+		CollisionShape->OnComponentEndOverlap.AddDynamic(this, &ACollectionCounterActor::OnPlayerExitOverlap);
 	}
 
 }

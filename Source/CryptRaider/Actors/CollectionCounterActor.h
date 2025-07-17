@@ -75,7 +75,8 @@ private:
 
 	// Check how many collectibles did player bring
 	int32 CollectiblesAmount {0};
-	UShapeComponent* CollisionComponent {nullptr};
+	UPROPERTY()
+	UShapeComponent* CollisionShape {nullptr};
 	int32 CountCollectables() const;
 
 	// Win condition logic
