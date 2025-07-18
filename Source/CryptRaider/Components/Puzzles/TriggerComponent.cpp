@@ -16,9 +16,6 @@ UTriggerComponent::UTriggerComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.
 	// You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-	// Make sure to tick together with Mover Components, and offload the game tick.
-	PrimaryComponentTick.TickGroup = TG_DuringPhysics;
 
 	Super::SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
@@ -32,47 +29,15 @@ UTriggerComponent::UTriggerComponent()
 	
 	
 	SetGenerateOverlapEvents(true);
+
+	OnComponentBeginOverlap.AddDynamic(this, &UTriggerComponent::OnKeyBeginOverlap);
+	OnComponentEndOverlap.AddDynamic(this, &UTriggerComponent::OnKeyEndOverlap);
 	
 }
 
 void UTriggerComponent::BeginPlay()
 {
 	Super::BeginPlay();
-}
-
-void UTriggerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	KeyActor = GetFittingActor(KeyActors);
-	if (KeyActor != nullptr)
-	{
-		bWantsToTrigger = true;
-	}
-	else if (KeyActor == nullptr)
-	{
-		bWantsToTrigger = false;
-	}
-}
-
-
-AActor* UTriggerComponent::GetFittingActor(TArray<AActor*>& OverlappingActors) const
-{
-	this->GetOverlappingActors(OverlappingActors);
-	for (AActor* Actor : OverlappingActors)
-	{
-		if (Actor->ActorHasTag(KeyTag))
-		{
-			DebugShowFitActor(Actor);
-			return Actor;
-		}
-		else if (Actor->FindComponentByTag<UStaticMeshComponent>(KeyTag) != nullptr)
-		{
-			DebugShowFitActorWithComponent(Actor);
-			return Actor;
-		}
-	}
-	return nullptr;
 }
 
 void UTriggerComponent::TriggerMover (const TScriptInterface<IMovable> IMovableActor) const
@@ -83,30 +48,35 @@ void UTriggerComponent::TriggerMover (const TScriptInterface<IMovable> IMovableA
 		return;
 	}
 	
-	if (bWantsToTrigger)
+	if (Movement == WantsToOpen)
 	{
-		IMovableActor->SetShouldMove();
+		IMovableActor->SetWantsToOpen();
 	}
-	else if (!bWantsToTrigger)
+	else if (Movement == WantsToClose)
 	{
-		IMovableActor->SetShouldNotMove();
-	}
-}
-
-void UTriggerComponent::DebugShowFitActor(const AActor* Key) const
-{
-	if (bIsDebugEnabled)
-	{
-		UE_LOG(LogTemp, Display, TEXT("%s has key as %s Actor"),
-				*GetOwner()->GetActorNameOrLabel(), *Key->GetActorNameOrLabel())
+		IMovableActor->SetWantsToClose();
 	}
 }
 
-void UTriggerComponent::DebugShowFitActorWithComponent(const AActor* Key) const
+void UTriggerComponent::OnKeyBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (bIsDebugEnabled)
+	if (OtherActor && (OtherActor->FindComponentByTag<UStaticMeshComponent>(KeyTag) || OtherActor->ActorHasTag(KeyTag)))
 	{
-		UE_LOG(LogTemp, Display, TEXT("%s has key as %s's Component"),
-					*GetOwner()->GetActorNameOrLabel(), *Key->GetActorNameOrLabel())
+		Movement = WantsToOpen;
+
+		if (bCanPlayMusic)
+		{
+			OnDoorOpen.Broadcast(EMusicTriggerType::DungeonDoorOpen);
+		}
+	}
+}
+
+void UTriggerComponent::OnKeyEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor && (OtherActor->FindComponentByTag<UStaticMeshComponent>(KeyTag) || OtherActor->ActorHasTag(KeyTag)))
+	{
+		Movement = WantsToClose;
 	}
 }

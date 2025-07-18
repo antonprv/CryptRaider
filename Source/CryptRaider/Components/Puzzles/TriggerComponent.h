@@ -7,9 +7,19 @@
 #include "Components/BoxComponent.h"
 
 #include "CryptRaider/Components/Interfaces/Movable.h"
+#include "CryptRaider/GameMusic/MusicHelpers.h"
 
 
 #include "TriggerComponent.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDoorOpen, EMusicTriggerType, MusicToPlay);
+
+UENUM()
+enum EMovement : uint8
+{
+	WantsToOpen,
+	WantsToClose
+};
 
 /**
  * 
@@ -28,8 +38,8 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	UPROPERTY(EditAnywhere, Category="Music")
+	bool bCanPlayMusic {false};
 	
 	UPROPERTY(EditAnywhere, Category="Debug", meta = (Tooltip="Log out in console if Key is in lock if set to true"))
 	bool bIsDebugEnabled {false};
@@ -39,6 +49,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category="Object Detection",
 		meta = (Tooltip = "All actors (or components) with the KeyTag"))
 	TArray<AActor*> KeyActors {nullptr};
+
+	UPROPERTY(BlueprintAssignable, Category="Music")
+	FOnDoorOpen OnDoorOpen;
 	
 	UFUNCTION(BlueprintCallable, meta=(MustImplement="IMovable"))
 	void TriggerMover (TScriptInterface<IMovable> IMovableActor) const;
@@ -47,9 +60,20 @@ private:
 	bool bDoneOnce {false};
 	UPROPERTY()
 	AActor* KeyActor {nullptr};
-	bool bWantsToTrigger {false};
+	EMovement Movement {WantsToOpen};
 	
-	AActor* GetFittingActor(TArray<AActor*>& OverlappingActors) const;
-	void DebugShowFitActor(const AActor* Key) const;
-	void DebugShowFitActorWithComponent(const AActor* Key) const;
+	UFUNCTION()
+	void OnKeyBeginOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult & SweepResult);
+	UFUNCTION()
+	void OnKeyEndOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex);
 };

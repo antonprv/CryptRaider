@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 
+#include "CryptRaider/GameMusic/MusicHelpers.h"
+
 #include "Engine/TriggerBox.h"
 
 #include "CollectionCounterActor.generated.h"
@@ -13,7 +15,7 @@
  * Check how many collectables did the player bring, and if he brough enough, than he won.
  * Also, show collectables UI if we're in the zone and hide if we're not.
  */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameWon);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameWon, EMusicTriggerType, MusicToPlay);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerEnteredTrigger);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerExitTrigger);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCollectablesFound, int32, CollectableAmount);
@@ -36,6 +38,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Easter Eggs")
+	FName SecretTag {"Labubu"};
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CollectionCounter", meta=(Tooltip="Collectible tag to check"))
 	FName CollectibleTag {"Gargoyle"};
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CollectionCounter", meta=(Tooltip="Win condition"))

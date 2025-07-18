@@ -23,7 +23,7 @@ class CRYPTRAIDER_API IMovable
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	UFUNCTION(NotBlueprintable)
-	virtual void SetShouldMove() = 0;
+	virtual void SetWantsToOpen() = 0;
 	UFUNCTION(NotBlueprintable)
-	virtual void SetShouldNotMove() = 0;
+	virtual void SetWantsToClose() = 0;
 };

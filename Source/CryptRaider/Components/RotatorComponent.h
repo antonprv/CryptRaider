@@ -40,9 +40,9 @@ public:
 	float MoveSpeed {0.f};
 
 	UFUNCTION(NotBlueprintable)
-	virtual void SetShouldMove() override;
+	virtual void SetWantsToOpen() override;
 	UFUNCTION(NotBlueprintable)
-	virtual void SetShouldNotMove() override;
+	virtual void SetWantsToClose() override;
 	
 	UFUNCTION(BlueprintCallable)
 	bool GetShouldMove() const;

@@ -53,7 +53,7 @@ void ACollectionCounterActor::Tick(float DeltaTime)
 		// Makes sure that we're only broadcasting this once
 		if (!bDoneOnce)
 		{
-			OnGameWon.Broadcast();
+			OnGameWon.Broadcast(EMusicTriggerType::EndCreditsNormal);
 			bDoneOnce = true;
 		}
 	}
@@ -66,6 +66,13 @@ void ACollectionCounterActor::OnPlayerEnterOverlap(UPrimitiveComponent* Overlapp
 	if (OtherActor && OtherActor->IsA(ACharacter::StaticClass()))
 	{
 		OnPlayerEnteredTrigger.Broadcast();
+	}
+	else if (OtherActor)
+	{
+		if (OtherActor->ActorHasTag(SecretTag) || OtherActor->FindComponentByTag<UStaticMeshComponent>(SecretTag))
+		{
+			OnGameWon.Broadcast(EMusicTriggerType::EndCreditsSecret);
+		}
 	}
 }
 

@@ -19,9 +19,9 @@ public:
 	ASecretWall();
 
 	UFUNCTION(NotBlueprintable)
-	virtual void SetShouldMove() override;
+	virtual void SetWantsToOpen() override;
 	UFUNCTION(NotBlueprintable)
-	virtual void SetShouldNotMove() override;
+	virtual void SetWantsToClose() override;
 
 protected:
 	// Called when the game starts or when spawned

@@ -10,6 +10,10 @@ AScreamerActor::AScreamerActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.TickInterval = 1.0f / 30.0f; // 30 Hz = 1/30 seconds per tick
+
+	ScreamerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Screamer Mesh"));
+	RootComponent = ScreamerMesh;
 
 }
 
@@ -27,7 +31,7 @@ void AScreamerActor::Tick(float DeltaTime)
 
 }
 
-void AScreamerActor::SetShouldMove()
+void AScreamerActor::SetWantsToOpen()
 {
 	if (!IsPlayerLooking())
 	{
@@ -36,7 +40,7 @@ void AScreamerActor::SetShouldMove()
 	}
 }
 
-void AScreamerActor::SetShouldNotMove()
+void AScreamerActor::SetWantsToClose()
 {
 	if (!IsPlayerLooking())
 	{
@@ -55,6 +59,11 @@ void AScreamerActor::OnSetShouldNotMove_Implementation()
     UE_LOG(LogTemp, Warning, TEXT("OnSetShouldNotMove_Implementation: This function currently does nothing."));
 }
 
+
+void AScreamerActor::PerformFirstScreamer()
+{
+	
+}
 
 bool AScreamerActor::IsPlayerLooking() const
 {

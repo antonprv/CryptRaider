@@ -41,7 +41,7 @@ void ASecretWall::Tick(float DeltaTime)
 }
 
 
-void ASecretWall::SetShouldMove()
+void ASecretWall::SetWantsToOpen()
 {
 	PlaySound(MoveStartSound);
 	if (!IsPlayerLookingAtDoor())
@@ -52,7 +52,7 @@ void ASecretWall::SetShouldMove()
 	}
 }
 
-void ASecretWall::SetShouldNotMove()
+void ASecretWall::SetWantsToClose()
 {
 	PlaySound(MoveEndSound);
 	if (!IsPlayerLookingAtDoor())

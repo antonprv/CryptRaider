@@ -41,14 +41,14 @@ void UMoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	
 }
 
-void UMoverComponent::SetShouldMove()
+void UMoverComponent::SetWantsToOpen()
 {
 	PlaySound(MoveStartSound);
 	this->bShouldMove = true;
 	this->bIsMovingFinished = false;
 }
 
-void UMoverComponent::SetShouldNotMove()
+void UMoverComponent::SetWantsToClose()
 {
 	PlaySound(MoveEndSound);
 	this->bShouldMove = false;

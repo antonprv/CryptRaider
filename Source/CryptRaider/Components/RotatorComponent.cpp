@@ -38,14 +38,14 @@ void URotatorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 }
 
 
-void URotatorComponent::SetShouldMove()
+void URotatorComponent::SetWantsToOpen()
 {
 	PlaySound(MoveStartSound);
 	this->bShouldMove = true;
 	this->bIsMovingFinished = false;
 }
 
-void URotatorComponent::SetShouldNotMove()
+void URotatorComponent::SetWantsToClose()
 {
 	PlaySound(MoveEndSound);
 	this->bShouldMove = false;

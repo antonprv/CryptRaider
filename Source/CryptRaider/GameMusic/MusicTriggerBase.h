@@ -30,12 +30,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(BlueprintCallable, Category="Music Collision")
+	UPROPERTY(BlueprintAssignable, Category="Music Collision")
 	FOnPlayerEnterMusicArea OnPlayerEnterMusicArea;  
-	UPROPERTY(BlueprintCallable, Category="Music Collision")
+	UPROPERTY(BlueprintAssignable, Category="Music Collision")
 	FOnPlayerExitMusicArea OnPlayerExitMusicArea;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="MusicCollision")
 	EMusicTriggerType MusicToPlay {EMusicTriggerType::Entrance};
 	
 private:
