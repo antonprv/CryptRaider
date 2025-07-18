@@ -41,7 +41,7 @@ void AMusicTriggerBase::OnPlayerEnterOverlap(UPrimitiveComponent* OverlappedComp
 {
 	if (OtherActor && OtherActor->IsA(ACharacter::StaticClass()))
 	{
-		OnPlayerEnterMusicArea.Broadcast();
+		OnPlayerEnterMusicArea.Broadcast(MusicToPlay);
 	}
 }
 
@@ -50,7 +50,7 @@ void AMusicTriggerBase::OnPlayerExitOverlap(UPrimitiveComponent* OverlappedCompo
 {
 	if (OtherActor && OtherActor->IsA(ACharacter::StaticClass()))
 	{
-		OnPlayerExitMusicArea.Broadcast();
+		OnPlayerExitMusicArea.Broadcast(MusicToPlay);
 	}
 }
 

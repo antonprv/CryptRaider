@@ -3,21 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "CryptRaider/GameMusic/MusicHelpers.h"
+
 #include "Engine/TriggerBox.h"
+
 #include "MusicTriggerBase.generated.h"
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerEnterMusicArea);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerExitMusicArea);
-
-UENUM(BlueprintType, Category="Music")
-enum class EMusicTriggerType : uint8
-{
-	Entrance UMETA(DisplayName = "Entrance Theme"),
-	DungeonDoorOpen UMETA(DisplayName = "Dungeon Door Open Theme"),
-	SecretRoom UMETA(DisplayName = "Secret Room Theme"),
-	ChaseSequence UMETA(DisplayName = "Chase Sequence Theme"),
-	ScreamerTheme UMETA(DisplayName = "")
-};
 
 /**
  * 
@@ -40,9 +31,12 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(BlueprintCallable, Category="Music Collision")
-	FOnPlayerEnterMusicArea OnPlayerEnterMusicArea;
+	FOnPlayerEnterMusicArea OnPlayerEnterMusicArea;  
 	UPROPERTY(BlueprintCallable, Category="Music Collision")
 	FOnPlayerExitMusicArea OnPlayerExitMusicArea;
+
+	UPROPERTY()
+	EMusicTriggerType MusicToPlay {EMusicTriggerType::Entrance};
 	
 private:
 	UFUNCTION()
