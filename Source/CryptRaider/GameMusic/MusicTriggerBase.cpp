@@ -12,11 +12,7 @@ AMusicTriggerBase::AMusicTriggerBase()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	// In your actor's constructor
-	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.TickGroup = TG_DuringPhysics;
-	// Can be overriden in derived classes
-	PrimaryActorTick.TickInterval = 1.0f / 30.0f; // 30 Hz = 1/30 seconds per tick
-
+	
 	CollisionShape = GetComponentByClass<UShapeComponent>();
 
 	if (CollisionShape)
@@ -41,10 +37,6 @@ void AMusicTriggerBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void AMusicTriggerBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
 
 void AMusicTriggerBase::OnPlayerEnterOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

@@ -3,16 +3,39 @@
 
 #include "ScreamerActor.h"
 
+#include "Components/BillboardComponent.h"
+
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AScreamerActor::AScreamerActor()
 {
+	DECLARE_LOG_CATEGORY_CLASS(LogAScreamerActor, Warning, Warning)
+	
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.TickInterval = 1.0f / 30.0f; // 30 Hz = 1/30 seconds per tick
+	
 
 	ScreamerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Screamer Mesh"));
 	RootComponent = ScreamerMesh;
+
+	EditorBillboard = CreateDefaultSubobject<UBillboardComponent>(TEXT("Editor Billboard"));
+
+	EditorBillboard->SetupAttachment(ScreamerMesh);
+	
+	static ConstructorHelpers::FObjectFinder<UTexture2D> SpriteFinder(
+		TEXT("/Engine/EditorResources/EmptyActor"));
+
+	if (SpriteFinder.Succeeded())
+	{
+		EditorBillboard->SetSprite(SpriteFinder.Object);
+	}
+	else if (!SpriteFinder.Succeeded())
+	{
+		UE_LOG(LogAScreamerActor, Warning,
+			TEXT("Was not able to find the EditorBillboard sprite"))
+	}
 }
 
 
@@ -50,6 +73,13 @@ void AScreamerActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+void AScreamerActor::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	HideFromPlayer();
+}
+
 
 void AScreamerActor::HandlePlayerEnterScreamer(EScreamerType ScreamerType)
 {
@@ -72,15 +102,21 @@ void AScreamerActor::HandlePlayerEnterScreamer(EScreamerType ScreamerType)
 
 void AScreamerActor::HandlePlayerExitScreamer(EScreamerType ScreamerType)
 {
-	if (!IsPlayerLooking() && bSecondScreamerDone)
+	if (ScreamerType == EScreamerType::SecondScreamer)
 	{
-		PlaySound(OnExitMoveSound);
-		ScreamerMesh->SetVisibility(false);
-		SetActorTransform(DefaultTransform);
-	}
-	else
-	{
-		GetWorld()->GetTimerManager().ClearTimer(SecondScreamerTimer);
+		if (!IsPlayerLooking() && bSecondScreamerDone)
+		{
+			PlaySound(OnExitMoveSound);
+			bCanHideFromPlayer = true;
+			SetActorTransform(DefaultTransform);
+			OnPlayerEndedScreamer.Broadcast(EMusicTriggerType::Screamer);
+		}
+		else
+		{
+			bCanPlaySecondScreamer = false;
+			bCanHideFromPlayer = true;
+			GetWorld()->GetTimerManager().ClearTimer(SecondScreamerTimer);
+		}
 	}
 }
 
@@ -101,12 +137,21 @@ void AScreamerActor::UnsubscribeFromAll()
 }
 
 
-void AScreamerActor::PerformFirstScreamer() const
+void AScreamerActor::HideFromPlayer() const
 {
-	if (!IsPlayerLooking())
+	if (bCanHideFromPlayer && !IsPlayerLooking())
 	{
 		ScreamerMesh->SetVisibility(false);
 	}
+	else if (!bCanHideFromPlayer)
+	{
+		ScreamerMesh->SetVisibility(true);
+	}
+}
+
+void AScreamerActor::PerformFirstScreamer()
+{
+	bCanHideFromPlayer = true;
 }
 
 void AScreamerActor::PerformSecondScreamer()
@@ -120,11 +165,11 @@ void AScreamerActor::PerformSecondScreamer()
 
 void AScreamerActor::ExecuteSecondScreamer()
 {
-	SetActorTransform(ScreamerTransform);
-	if (!IsPlayerLooking())
+	if (!IsPlayerLooking() && bCanPlaySecondScreamer)
 	{
+		SetActorTransform(ScreamerTransform);
 		PlaySound(OnMoveSound);
-		ScreamerMesh->SetVisibility(true);
+		bCanHideFromPlayer = false;
 		OnPlayerStartedScreamer.Broadcast(EMusicTriggerType::Screamer);
 
 		bSecondScreamerDone = true;
@@ -141,9 +186,9 @@ bool AScreamerActor::IsPlayerLooking() const
 	FRotator CameraRotation;
 	PlayerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
     
-	// Calculate direction to door
-	const FVector DoorLocation = this->GetActorLocation();
-	const FVector ToDoor = (DoorLocation - CameraLocation).GetSafeNormal();
+	// Calculate direction to LookPlace
+	const FVector ScreamerLocation = this->GetActorLocation();
+	const FVector ToDoor = (ScreamerLocation - CameraLocation).GetSafeNormal();
 	const FVector LookDirection = CameraRotation.Vector();
 
 	// Check angle threshold (45 degrees)

@@ -44,6 +44,7 @@ void UTriggerComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	OnComponentBeginOverlap.RemoveDynamic(this, &UTriggerComponent::OnKeyBeginOverlap);
 	OnComponentEndOverlap.RemoveDynamic(this, &UTriggerComponent::OnKeyEndOverlap);
+	OnDoorOpen.Clear();
 	
 	Super::EndPlay(EndPlayReason);
 }
@@ -73,10 +74,16 @@ void UTriggerComponent::OnKeyBeginOverlap(UPrimitiveComponent* OverlappedCompone
 	{
 		Movement = WantsToOpen;
 
+		OnPlateTriggered.Broadcast(ETriggerDirection::Open);
+
 		if (bCanPlayMusic)
 		{
 			OnDoorOpen.Broadcast(MusicToPlay);
 		}
+	}
+	else
+	{
+		Movement = Idle;
 	}
 }
 
@@ -86,5 +93,10 @@ void UTriggerComponent::OnKeyEndOverlap(UPrimitiveComponent* OverlappedComponent
 	if (OtherActor && (OtherActor->FindComponentByTag<UStaticMeshComponent>(KeyTag) || OtherActor->ActorHasTag(KeyTag)))
 	{
 		Movement = WantsToClose;
+		OnPlateTriggered.Broadcast(ETriggerDirection::Close);
+	}
+	else
+	{
+		Movement = Idle;
 	}
 }

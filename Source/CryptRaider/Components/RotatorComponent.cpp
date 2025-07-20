@@ -3,6 +3,8 @@
 
 #include "RotatorComponent.h"
 
+#include "CryptRaider/Actors/PressurePlateActor.h"
+
 #include "Kismet/GameplayStatics.h"
 
 
@@ -13,7 +15,7 @@ URotatorComponent::URotatorComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 	// Make sure to tick together with Mover Components, and offload the game tick.
-	PrimaryComponentTick.TickGroup = TG_DuringPhysics;
+	PrimaryComponentTick.TickInterval = 1.0f / 60.0f; // 30 Hz = 1/30 seconds per tick
 }
 
 
@@ -26,6 +28,28 @@ void URotatorComponent::BeginPlay()
 	ActorToMove = GetOwner();
 	DefaultRotation = ActorToMove->GetActorRotation();
 	CurrentRotation = DefaultRotation;
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APressurePlateActor::StaticClass(), TriggerActors);
+	for (AActor* Actor : TriggerActors)
+	{
+		if (APressurePlateActor* PressurePlateActor = Cast<APressurePlateActor>(Actor))
+		{
+			PressurePlateActor->OnPPTriggered.AddDynamic(this, &URotatorComponent::HandlePressurePlate);
+		}
+	}
+}
+
+void URotatorComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	for (AActor* Actor : TriggerActors)
+	{
+		if (APressurePlateActor* PressurePlateActor = Cast<APressurePlateActor>(Actor))
+		{
+			PressurePlateActor->OnPPTriggered.RemoveDynamic(this, &URotatorComponent::HandlePressurePlate);
+		}
+	}
+	
+	Super::EndPlay(EndPlayReason);
 }
 
 
@@ -92,6 +116,23 @@ bool URotatorComponent::RotateToRotation(const FRotator& End, const float & Delt
 		return true;
 	}
 	return false;
+}
+
+void URotatorComponent::HandlePressurePlate(ETriggerDirection TriggerDirection)
+{
+	DECLARE_LOG_CATEGORY_CLASS(LogURotatorComponent, Warning, Warning)
+	
+	switch (TriggerDirection)
+	{
+	case ETriggerDirection::Open:
+		PlaySound(MoveStartSound);
+		break;
+	case ETriggerDirection::Close:
+		PlaySound(MoveEndSound);
+		break;
+	default:
+		UE_LOG(LogURotatorComponent, Warning, TEXT("Got Inappropriate value from UTriggerComponent"))
+	}
 }
 
 void URotatorComponent::PlaySound(USoundBase* SoundToPlay)

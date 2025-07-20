@@ -3,6 +3,8 @@
 
 #include "MoverComponent.h"
 
+#include "CryptRaider/Actors/PressurePlateActor.h"
+
 #include "Kismet/GameplayStatics.h"
 
 #include "Math/UnrealMathUtility.h"
@@ -14,7 +16,7 @@ UMoverComponent::UMoverComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 	// Make sure to tick together with Mover Components, and offload the game tick.
-	PrimaryComponentTick.TickGroup = TG_DuringPhysics;
+	PrimaryComponentTick.TickInterval = 1.0f / 60.0f; // 30 Hz = 1/30 seconds per tick
 
 	// ...
 }
@@ -29,6 +31,28 @@ void UMoverComponent::BeginPlay()
 	ActorToMove = GetOwner();
 	DefaultLocation = ActorToMove->GetActorLocation();
 	CurrentLocation = DefaultLocation;
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APressurePlateActor::StaticClass(), TriggerActors);
+	for (AActor* Actor : TriggerActors)
+	{
+		if (APressurePlateActor* PressurePlateActor = Cast<APressurePlateActor>(Actor))
+		{
+			PressurePlateActor->OnPPTriggered.AddDynamic(this, &UMoverComponent::HandlePressurePlate);
+		}
+	}
+}
+
+void UMoverComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	for (AActor* Actor : TriggerActors)
+	{
+		if (APressurePlateActor* PressurePlateActor = Cast<APressurePlateActor>(Actor))
+		{
+			PressurePlateActor->OnPPTriggered.RemoveDynamic(this, &UMoverComponent::HandlePressurePlate);
+		}
+	}
+	
+	Super::EndPlay(EndPlayReason);
 }
 
 
@@ -43,14 +67,12 @@ void UMoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 void UMoverComponent::SetWantsToOpen()
 {
-	PlaySound(MoveStartSound);
 	this->bShouldMove = true;
 	this->bIsMovingFinished = false;
 }
 
 void UMoverComponent::SetWantsToClose()
 {
-	PlaySound(MoveEndSound);
 	this->bShouldMove = false;
 	this->bIsMovingFinished = false;
 }
@@ -98,7 +120,24 @@ bool UMoverComponent::MoveToLocation(const FVector& End, const float& DeltaTimeS
 }
 
 
-void UMoverComponent::PlaySound(USoundBase* SoundToPlay)
+void UMoverComponent::HandlePressurePlate(ETriggerDirection TriggerDirection)
+{
+	DECLARE_LOG_CATEGORY_CLASS(LogUMoverComponent, Warning, Warning)
+	
+	switch (TriggerDirection)
+	{
+	case ETriggerDirection::Open:
+		PlaySound(MoveStartSound);
+		break;
+	case ETriggerDirection::Close:
+		PlaySound(MoveEndSound);
+		break;
+	default:
+			UE_LOG(LogUMoverComponent, Warning, TEXT("Got Inappropriate value from UTriggerComponent"))
+	}
+}
+
+void UMoverComponent::PlaySound(USoundBase* SoundToPlay) const
 {
 	if (MoveStartSound && GetWorld())
 	{

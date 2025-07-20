@@ -32,13 +32,10 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, Category="Secret Wall")
 	void OnSetShouldNotMove();
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+public:		
+	UPROPERTY(EditAnywhere, Category = "Sound")
 	TObjectPtr<USoundBase> MoveStartSound {nullptr};
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	UPROPERTY(EditAnywhere, Category = "Sound")
 	TObjectPtr<USoundBase> MoveEndSound {nullptr};
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMax=0.9f,

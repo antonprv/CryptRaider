@@ -11,6 +11,7 @@
 #include "PressurePlateActor.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDungeonDoorOpen, EMusicTriggerType, MusicToPlay);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPPTriggered, ETriggerDirection, TriggerDirection);
 
 UCLASS()
 class CRYPTRAIDER_API APressurePlateActor : public AActor
@@ -29,6 +30,8 @@ protected:
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnDungeonDoorOpen OnDungeonDoorOpen;
+	UPROPERTY(BlueprintAssignable)
+	FOnPPTriggered OnPPTriggered;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTriggerComponent* TriggerComponent {nullptr};
@@ -36,6 +39,11 @@ public:
 	UStaticMeshComponent* StaticMesh {nullptr};
 
 private:
+	UPROPERTY()
+	UBillboardComponent* EditorBillboard {nullptr};
+	
 	UFUNCTION()
-	void HandleDoorOpen(EMusicTriggerType& MusicToPlay);
+	void HandleDoorOpen(const EMusicTriggerType MusicToPlay);
+	UFUNCTION()
+	void HandlePPTriggered(ETriggerDirection TriggerDirection);
 };

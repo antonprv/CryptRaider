@@ -33,13 +33,6 @@ void ASecretWall::OnSetShouldNotMove_Implementation()
 	UE_LOG(LogTemp, Warning, TEXT("OnSetShouldNotMove is not implemented"))
 }
 
-// Called every frame
-void ASecretWall::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 
 void ASecretWall::SetWantsToOpen()
 {

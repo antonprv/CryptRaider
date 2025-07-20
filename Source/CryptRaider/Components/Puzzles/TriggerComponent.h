@@ -12,13 +12,22 @@
 
 #include "TriggerComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDoorOpen, EMusicTriggerType&, MusicToPlay);
+UENUM()
+enum ETriggerDirection
+{
+	Open,
+	Close
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDoorOpen, EMusicTriggerType, MusicToPlay);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlateTriggered, ETriggerDirection, TriggerDirection);
 
 UENUM()
 enum EMovement : uint8
 {
 	WantsToOpen,
-	WantsToClose
+	WantsToClose,
+	Idle
 };
 
 /**
@@ -51,10 +60,12 @@ public:
 		meta = (Tooltip = "All actors (or components) with the KeyTag"))
 	TArray<AActor*> KeyActors {nullptr};
 
-	UPROPERTY(NotBlueprintable)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Music")
 	EMusicTriggerType MusicToPlay {EMusicTriggerType::DungeonDoorOpen};
 	UPROPERTY(BlueprintAssignable, Category="Music")
 	FOnDoorOpen OnDoorOpen;
+	UPROPERTY(BlueprintAssignable, Category="Sound")
+	FOnPlateTriggered OnPlateTriggered;
 	
 	UFUNCTION(BlueprintCallable, meta=(MustImplement="IMovable"))
 	void TriggerMover (TScriptInterface<IMovable> IMovableActor) const;
@@ -63,7 +74,7 @@ private:
 	bool bDoneOnce {false};
 	UPROPERTY()
 	AActor* KeyActor {nullptr};
-	EMovement Movement {WantsToOpen};
+	EMovement Movement {Idle};
 	
 	UFUNCTION()
 	void OnKeyBeginOverlap(

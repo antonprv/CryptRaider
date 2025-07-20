@@ -11,6 +11,9 @@
 #include "ScreamerActor.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStartedScreamer, EMusicTriggerType, MusicToPlay);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerEndedScreamer, EMusicTriggerType, MusicToPlay);
+
+class UBillboardComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(Blueprintable) )
 class CRYPTRAIDER_API AScreamerActor : public AActor
@@ -26,7 +29,9 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-public:	
+public:
+	virtual void Tick(float DeltaSeconds) override;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Quantum Effect", meta=(ClampMax=0.9,
 		Tooltip="To what extend are things happening when player is not looking, 0 - they never happen, 0.9 - they can happen right before player's eyes"))
 	float QuantumEffectPercentage {0.1};
@@ -54,6 +59,8 @@ public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Music")
 	FOnPlayerStartedScreamer OnPlayerStartedScreamer;
 	bool bSecondScreamerDone {false};
+	UPROPERTY(BlueprintAssignable, Category="Music");
+	FOnPlayerEndedScreamer OnPlayerEndedScreamer;
 
 private:
 	UPROPERTY()
@@ -64,16 +71,25 @@ private:
 
 	UPROPERTY()
 	FTransform DefaultTransform {};
-		
+
+	UPROPERTY()
+	UBillboardComponent* EditorBillboard {nullptr};
+
+	bool bCanPlaySecondScreamer {true};
+	
 	UFUNCTION()
 	void HandlePlayerEnterScreamer(EScreamerType ScreamerType);
 	UFUNCTION()
 	void HandlePlayerExitScreamer(EScreamerType ScreamerType);
 
 	void UnsubscribeFromAll();
-	
-	void PerformFirstScreamer() const;
+
+	bool bCanHideFromPlayer {false};
+	void HideFromPlayer() const;
+
+	void PerformFirstScreamer();
 	void PerformSecondScreamer();
+
 	void ExecuteSecondScreamer();
 	bool IsPlayerLooking() const;
 	void PlaySound(USoundBase* SoundToPlay) const;
