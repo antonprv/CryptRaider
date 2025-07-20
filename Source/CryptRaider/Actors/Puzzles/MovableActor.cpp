@@ -3,8 +3,6 @@
 
 #include "MovableActor.h"
 
-#include "AI/NavigationSystemBase.h"
-
 #include "Components/AudioComponent.h"
 
 #include "CryptRaider/Actors/PressurePlateActor.h"
