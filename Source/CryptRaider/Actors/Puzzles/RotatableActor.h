@@ -11,6 +11,7 @@
 
 class URotatorComponent;
 class UAudioComponent;
+class UBillboardComponent;
 
 UCLASS()
 class CRYPTRAIDER_API ARotatableActor : public AActor
@@ -39,6 +40,9 @@ public:
 	URotatorComponent* RotatorComponent {nullptr};
 
 private:
+	UPROPERTY()
+	UBillboardComponent* EditorBillboard {nullptr};
+	
 	UPROPERTY()
 	UAudioComponent* AudioComponent {nullptr};
 	

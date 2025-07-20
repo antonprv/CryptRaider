@@ -4,6 +4,7 @@
 #include "MovableActor.h"
 
 #include "Components/AudioComponent.h"
+#include "Components/BillboardComponent.h"
 
 #include "CryptRaider/Actors/PressurePlateActor.h"
 #include "CryptRaider/Components/MoverComponent.h"
@@ -16,11 +17,30 @@ AMovableActor::AMovableActor()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+	DECLARE_LOG_CATEGORY_CLASS(LogAMovableActor, Warning, Warning)
+	
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Static Mesh Component"));
 	RootComponent = StaticMesh;
 	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("Sound Player"));
 	AudioComponent->SetupAttachment(StaticMesh);
 	MoverComponent = CreateDefaultSubobject<UMoverComponent>(TEXT("Mover Component"));
+	
+	EditorBillboard = CreateDefaultSubobject<UBillboardComponent>(TEXT("Editor Billboard"));
+
+	EditorBillboard->SetupAttachment(StaticMesh);
+	
+	static ConstructorHelpers::FObjectFinder<UTexture2D> SpriteFinder(
+		TEXT("/Engine/EditorResources/EmptyActor"));
+
+	if (SpriteFinder.Succeeded())
+	{
+		EditorBillboard->SetSprite(SpriteFinder.Object);
+	}
+	else if (!SpriteFinder.Succeeded())
+	{
+		UE_LOG(LogAMovableActor, Warning,
+			TEXT("Was not able to find the EditorBillboard sprite"))
+	}
 }
 
 // Called when the game starts or when spawned

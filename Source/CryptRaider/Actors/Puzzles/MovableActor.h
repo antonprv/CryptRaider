@@ -11,6 +11,7 @@
 
 class UMoverComponent;
 class UAudioComponent;
+class UBillboardComponent;
 
 UCLASS()
 class CRYPTRAIDER_API AMovableActor : public AActor
@@ -39,6 +40,9 @@ public:
 	UMoverComponent* MoverComponent {nullptr};
 
 private:
+	UPROPERTY()
+	UBillboardComponent* EditorBillboard {nullptr};
+	
 	UPROPERTY()
 	UAudioComponent* AudioComponent {nullptr};
 

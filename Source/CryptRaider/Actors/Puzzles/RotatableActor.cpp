@@ -4,6 +4,7 @@
 #include "RotatableActor.h"
 
 #include "Components/AudioComponent.h"
+#include "Components/BillboardComponent.h"
 
 #include "CryptRaider/Actors/PressurePlateActor.h"
 #include "CryptRaider/Components/RotatorComponent.h"
@@ -15,6 +16,8 @@ ARotatableActor::ARotatableActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+
+	DECLARE_LOG_CATEGORY_CLASS(LogARotatableActor, Warning, Warning)
 	
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Static Mesh Component"));
 	RootComponent = StaticMesh;
@@ -22,6 +25,22 @@ ARotatableActor::ARotatableActor()
 	AudioComponent->SetupAttachment(StaticMesh);
 	RotatorComponent = CreateDefaultSubobject<URotatorComponent>(TEXT("Rotator Component"));
 
+	EditorBillboard = CreateDefaultSubobject<UBillboardComponent>(TEXT("Editor Billboard"));
+
+	EditorBillboard->SetupAttachment(StaticMesh);
+	
+	static ConstructorHelpers::FObjectFinder<UTexture2D> SpriteFinder(
+		TEXT("/Engine/EditorResources/EmptyActor"));
+
+	if (SpriteFinder.Succeeded())
+	{
+		EditorBillboard->SetSprite(SpriteFinder.Object);
+	}
+	else if (!SpriteFinder.Succeeded())
+	{
+		UE_LOG(LogARotatableActor, Warning,
+			TEXT("Was not able to find the EditorBillboard sprite"))
+	}
 }
 
 // Called when the game starts or when spawned
