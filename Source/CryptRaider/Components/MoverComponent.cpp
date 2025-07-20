@@ -3,6 +3,8 @@
 
 #include "MoverComponent.h"
 
+#include "Components/AudioComponent.h"
+
 #include "CryptRaider/Actors/PressurePlateActor.h"
 
 #include "Kismet/GameplayStatics.h"
@@ -17,8 +19,6 @@ UMoverComponent::UMoverComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	// Make sure to tick together with Mover Components, and offload the game tick.
 	PrimaryComponentTick.TickInterval = 1.0f / 60.0f; // 30 Hz = 1/30 seconds per tick
-
-	// ...
 }
 
 
@@ -31,30 +31,7 @@ void UMoverComponent::BeginPlay()
 	ActorToMove = GetOwner();
 	DefaultLocation = ActorToMove->GetActorLocation();
 	CurrentLocation = DefaultLocation;
-
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APressurePlateActor::StaticClass(), TriggerActors);
-	for (AActor* Actor : TriggerActors)
-	{
-		if (APressurePlateActor* PressurePlateActor = Cast<APressurePlateActor>(Actor))
-		{
-			PressurePlateActor->OnPPTriggered.AddDynamic(this, &UMoverComponent::HandlePressurePlate);
-		}
-	}
 }
-
-void UMoverComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	for (AActor* Actor : TriggerActors)
-	{
-		if (APressurePlateActor* PressurePlateActor = Cast<APressurePlateActor>(Actor))
-		{
-			PressurePlateActor->OnPPTriggered.RemoveDynamic(this, &UMoverComponent::HandlePressurePlate);
-		}
-	}
-	
-	Super::EndPlay(EndPlayReason);
-}
-
 
 // Called every frame
 void UMoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -117,34 +94,4 @@ bool UMoverComponent::MoveToLocation(const FVector& End, const float& DeltaTimeS
 		return true;
 	}
 	return false;
-}
-
-
-void UMoverComponent::HandlePressurePlate(ETriggerDirection TriggerDirection)
-{
-	DECLARE_LOG_CATEGORY_CLASS(LogUMoverComponent, Warning, Warning)
-	
-	switch (TriggerDirection)
-	{
-	case ETriggerDirection::Open:
-		PlaySound(MoveStartSound);
-		break;
-	case ETriggerDirection::Close:
-		PlaySound(MoveEndSound);
-		break;
-	default:
-			UE_LOG(LogUMoverComponent, Warning, TEXT("Got Inappropriate value from UTriggerComponent"))
-	}
-}
-
-void UMoverComponent::PlaySound(USoundBase* SoundToPlay) const
-{
-	if (MoveStartSound && GetWorld())
-	{
-		UGameplayStatics::PlaySoundAtLocation(
-			this, 
-			SoundToPlay, 
-			GetOwner()->GetActorLocation() // Play at the owner's location
-		);
-	}
 }

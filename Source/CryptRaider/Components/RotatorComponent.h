@@ -24,17 +24,10 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	//Sound indicating opening
-	UPROPERTY(EditAnywhere, Category = "Sound")
-	TObjectPtr<USoundBase> MoveStartSound {nullptr};
-	UPROPERTY(EditAnywhere, Category = "Sound")
-	TObjectPtr<USoundBase> MoveEndSound {nullptr};
 	
 	UPROPERTY(EditAnywhere, Category="Actor Rotation", meta=(Tooltip="Target for rotating back and forth on trigger"))
 	FRotator TargetRotation {0.f, 0.f, 0.f};
@@ -62,10 +55,4 @@ private:
 	
 	void RotateActor(const bool& bCanMove, const float& DeltaTimeSeconds);
 	bool RotateToRotation(const FRotator& End, const float & DeltaTimeSeconds);
-
-	UPROPERTY()
-	TArray<AActor*> TriggerActors {};
-	UFUNCTION()
-	void HandlePressurePlate(ETriggerDirection TriggerDirection);
-	void PlaySound(USoundBase* SoundToPlay);
 };

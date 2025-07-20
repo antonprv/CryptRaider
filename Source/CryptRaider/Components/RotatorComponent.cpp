@@ -28,30 +28,7 @@ void URotatorComponent::BeginPlay()
 	ActorToMove = GetOwner();
 	DefaultRotation = ActorToMove->GetActorRotation();
 	CurrentRotation = DefaultRotation;
-
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APressurePlateActor::StaticClass(), TriggerActors);
-	for (AActor* Actor : TriggerActors)
-	{
-		if (APressurePlateActor* PressurePlateActor = Cast<APressurePlateActor>(Actor))
-		{
-			PressurePlateActor->OnPPTriggered.AddDynamic(this, &URotatorComponent::HandlePressurePlate);
-		}
-	}
 }
-
-void URotatorComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	for (AActor* Actor : TriggerActors)
-	{
-		if (APressurePlateActor* PressurePlateActor = Cast<APressurePlateActor>(Actor))
-		{
-			PressurePlateActor->OnPPTriggered.RemoveDynamic(this, &URotatorComponent::HandlePressurePlate);
-		}
-	}
-	
-	Super::EndPlay(EndPlayReason);
-}
-
 
 // Called every frame
 void URotatorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -64,14 +41,12 @@ void URotatorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 void URotatorComponent::SetWantsToOpen()
 {
-	PlaySound(MoveStartSound);
 	this->bShouldMove = true;
 	this->bIsMovingFinished = false;
 }
 
 void URotatorComponent::SetWantsToClose()
 {
-	PlaySound(MoveEndSound);
 	this->bShouldMove = false;
 	this->bIsMovingFinished = false;
 }
@@ -116,33 +91,4 @@ bool URotatorComponent::RotateToRotation(const FRotator& End, const float & Delt
 		return true;
 	}
 	return false;
-}
-
-void URotatorComponent::HandlePressurePlate(ETriggerDirection TriggerDirection)
-{
-	DECLARE_LOG_CATEGORY_CLASS(LogURotatorComponent, Warning, Warning)
-	
-	switch (TriggerDirection)
-	{
-	case ETriggerDirection::Open:
-		PlaySound(MoveStartSound);
-		break;
-	case ETriggerDirection::Close:
-		PlaySound(MoveEndSound);
-		break;
-	default:
-		UE_LOG(LogURotatorComponent, Warning, TEXT("Got Inappropriate value from UTriggerComponent"))
-	}
-}
-
-void URotatorComponent::PlaySound(USoundBase* SoundToPlay)
-{
-	if (MoveStartSound && GetWorld())
-	{
-		UGameplayStatics::PlaySoundAtLocation(
-			this, 
-			SoundToPlay, 
-			GetOwner()->GetActorLocation() // Play at the owner's location
-		);
-	}
 }

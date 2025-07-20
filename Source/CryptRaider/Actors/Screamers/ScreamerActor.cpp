@@ -104,12 +104,12 @@ void AScreamerActor::HandlePlayerExitScreamer(EScreamerType ScreamerType)
 {
 	if (ScreamerType == EScreamerType::SecondScreamer)
 	{
+		OnPlayerEndedScreamer.Broadcast(EMusicTriggerType::Screamer);
 		if (!IsPlayerLooking() && bSecondScreamerDone)
 		{
 			PlaySound(OnExitMoveSound);
 			bCanHideFromPlayer = true;
 			SetActorTransform(DefaultTransform);
-			OnPlayerEndedScreamer.Broadcast(EMusicTriggerType::Screamer);
 		}
 		else
 		{
