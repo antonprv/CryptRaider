@@ -34,9 +34,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	TObjectPtr<USoundBase> MoveEndSound {nullptr};
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UStaticMeshComponent* StaticMesh {nullptr};
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	URotatorComponent* RotatorComponent {nullptr};
 
 private:
