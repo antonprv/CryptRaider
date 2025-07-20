@@ -12,7 +12,7 @@
 
 #include "TriggerComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDoorOpen, EMusicTriggerType, MusicToPlay);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDoorOpen, EMusicTriggerType&, MusicToPlay);
 
 UENUM()
 enum EMovement : uint8
@@ -36,6 +36,7 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:	
 	UPROPERTY(EditAnywhere, Category="Music")
@@ -50,6 +51,8 @@ public:
 		meta = (Tooltip = "All actors (or components) with the KeyTag"))
 	TArray<AActor*> KeyActors {nullptr};
 
+	UPROPERTY(NotBlueprintable)
+	EMusicTriggerType MusicToPlay {EMusicTriggerType::DungeonDoorOpen};
 	UPROPERTY(BlueprintAssignable, Category="Music")
 	FOnDoorOpen OnDoorOpen;
 	

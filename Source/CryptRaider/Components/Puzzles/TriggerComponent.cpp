@@ -40,6 +40,14 @@ void UTriggerComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
+void UTriggerComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	OnComponentBeginOverlap.RemoveDynamic(this, &UTriggerComponent::OnKeyBeginOverlap);
+	OnComponentEndOverlap.RemoveDynamic(this, &UTriggerComponent::OnKeyEndOverlap);
+	
+	Super::EndPlay(EndPlayReason);
+}
+
 void UTriggerComponent::TriggerMover (const TScriptInterface<IMovable> IMovableActor) const
 {
 	if (!IMovableActor)
@@ -67,7 +75,7 @@ void UTriggerComponent::OnKeyBeginOverlap(UPrimitiveComponent* OverlappedCompone
 
 		if (bCanPlayMusic)
 		{
-			OnDoorOpen.Broadcast(EMusicTriggerType::DungeonDoorOpen);
+			OnDoorOpen.Broadcast(MusicToPlay);
 		}
 	}
 }

@@ -3,14 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ScreamerTriggerActor.h"
 
-#include "CryptRaider/Components/Interfaces/Movable.h"
+#include "CryptRaider/GameMusic/MusicHelpers.h"
 
 #include "GameFramework/Actor.h"
 #include "ScreamerActor.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStartedScreamer, EMusicTriggerType, MusicToPlay);
+
 UCLASS( ClassGroup=(Custom), meta=(Blueprintable) )
-class CRYPTRAIDER_API AScreamerActor : public AActor, public IMovable
+class CRYPTRAIDER_API AScreamerActor : public AActor
 {
 	GENERATED_BODY()
 	
@@ -21,41 +24,57 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Quantum Effect", meta=(ClampMax=0.9,
 		Tooltip="To what extend are things happening when player is not looking, 0 - they never happen, 0.9 - they can happen right before player's eyes"))
 	float QuantumEffectPercentage {0.1};
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float SecondScreamerDelay {0.2f};
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (
+		Tooltip="In-game mesh of the screamer actor"))
+	UStaticMeshComponent* ScreamerMesh {nullptr};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (
+		ToolTip="Where actor is goint to move and how is it goint to rotate on second screamer"))
+	FTransform ScreamerTransform {GetActorTransform()};
+
+	// Sounds
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sound Effect", meta=(
 		Tooltip="Sound to play when actor triggers"))
 	USoundBase* OnMoveSound {nullptr};
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sound Effect", meta=(
 		Tooltip="Sound to play when actor stops triggering"))
 	USoundBase* OnExitMoveSound {nullptr};
-	
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (
-		Tooltip="In-game mesh of the screamer actor"))
-	UStaticMeshComponent* ScreamerMesh {nullptr};
-	
-	UFUNCTION(NotBlueprintable)
-	virtual void SetWantsToOpen() override;
-	UFUNCTION(NotBlueprintable)
-	virtual void SetWantsToClose() override;
 
-	UFUNCTION(BlueprintNativeEvent)
-	void OnSetShouldMove();
-	UFUNCTION(BlueprintNativeEvent)
-	void OnSetShouldNotMove();
+	// Music
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Music")
+	FOnPlayerStartedScreamer OnPlayerStartedScreamer;
+	bool bSecondScreamerDone {false};
 
-	
 private:
-	void PerformFirstScreamer();
+	UPROPERTY()
+	FTimerHandle SecondScreamerTimer {};
 	
+	UPROPERTY()
+	TArray<AActor*> ScreamerTriggers {};
+
+	UPROPERTY()
+	FTransform DefaultTransform {};
+		
+	UFUNCTION()
+	void HandlePlayerEnterScreamer(EScreamerType ScreamerType);
+	UFUNCTION()
+	void HandlePlayerExitScreamer(EScreamerType ScreamerType);
+
+	void UnsubscribeFromAll();
+	
+	void PerformFirstScreamer() const;
+	void PerformSecondScreamer();
+	void ExecuteSecondScreamer();
 	bool IsPlayerLooking() const;
 	void PlaySound(USoundBase* SoundToPlay) const;
 };

@@ -36,6 +36,14 @@ void ACollectionCounterActor::BeginPlay()
 	
 }
 
+void ACollectionCounterActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	CollisionShape->OnComponentBeginOverlap.RemoveDynamic(this, &ACollectionCounterActor::OnPlayerEnterOverlap);
+	CollisionShape->OnComponentEndOverlap.RemoveDynamic(this, &ACollectionCounterActor::OnPlayerExitOverlap);
+	
+	Super::EndPlay(EndPlayReason);
+}
+
 
 // Called every frame
 void ACollectionCounterActor::Tick(float DeltaTime)

@@ -31,6 +31,16 @@ void AMusicTriggerBase::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AMusicTriggerBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	CollisionShape->OnComponentBeginOverlap.RemoveDynamic(this, &AMusicTriggerBase::OnPlayerEnterOverlap);
+	CollisionShape->OnComponentEndOverlap.RemoveDynamic(this, &AMusicTriggerBase::OnPlayerExitOverlap);
+	OnPlayerEnterMusicArea.Clear();
+	OnPlayerExitMusicArea.Clear();
+	
+	Super::EndPlay(EndPlayReason);
+}
+
 void AMusicTriggerBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

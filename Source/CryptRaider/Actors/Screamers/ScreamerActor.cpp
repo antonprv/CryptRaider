@@ -9,60 +9,126 @@
 AScreamerActor::AScreamerActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.TickInterval = 1.0f / 30.0f; // 30 Hz = 1/30 seconds per tick
+	PrimaryActorTick.bCanEverTick = false;
 
 	ScreamerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Screamer Mesh"));
 	RootComponent = ScreamerMesh;
-
 }
+
 
 // Called when the game starts or when spawned
 void AScreamerActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (GetWorld())
+	{
+		DefaultTransform = GetActorTransform();
+		
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AScreamerTriggerActor::StaticClass(), ScreamerTriggers);
+
+		for (AActor* Actor : ScreamerTriggers)
+		{
+			if (AScreamerTriggerActor* TriggerActor = Cast<AScreamerTriggerActor>(Actor))
+			{
+				TriggerActor->OnPlayerEntersScreamerTrigger.AddDynamic(
+					this,
+					&AScreamerActor::HandlePlayerEnterScreamer);
+				TriggerActor->OnPlayerExitsScreamerTrigger.AddDynamic(
+					this,
+					&AScreamerActor::HandlePlayerExitScreamer);
+			}
+		}
+	}
 }
 
-// Called every frame
-void AScreamerActor::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 
+void AScreamerActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	UnsubscribeFromAll();
+	OnPlayerStartedScreamer.Clear();
+	Super::EndPlay(EndPlayReason);
 }
 
-void AScreamerActor::SetWantsToOpen()
+
+void AScreamerActor::HandlePlayerEnterScreamer(EScreamerType ScreamerType)
 {
+	DECLARE_LOG_CATEGORY_CLASS(LogAScreamerActor, Warning, Warning)
+	
+	switch (ScreamerType)
+	{
+	case EScreamerType::FirstScreamer:
+		PerformFirstScreamer();
+		break;
+	case EScreamerType::SecondScreamer:
+		PerformSecondScreamer();
+		break;
+		default:
+			UE_LOG(LogAScreamerActor, Warning,
+				TEXT("Received neither Second, nor First screamer, but still triggered"))
+		break;
+	}
+}
+
+void AScreamerActor::HandlePlayerExitScreamer(EScreamerType ScreamerType)
+{
+	if (!IsPlayerLooking() && bSecondScreamerDone)
+	{
+		PlaySound(OnExitMoveSound);
+		ScreamerMesh->SetVisibility(false);
+		SetActorTransform(DefaultTransform);
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().ClearTimer(SecondScreamerTimer);
+	}
+}
+
+void AScreamerActor::UnsubscribeFromAll()
+{
+	for (AActor* Actor : ScreamerTriggers)
+	{
+		if (AScreamerTriggerActor* TriggerActor = Cast<AScreamerTriggerActor>(Actor))
+		{
+			TriggerActor->OnPlayerEntersScreamerTrigger.RemoveDynamic(
+				this,
+				&AScreamerActor::HandlePlayerEnterScreamer);
+			TriggerActor->OnPlayerExitsScreamerTrigger.RemoveDynamic(
+				this,
+				&AScreamerActor::HandlePlayerExitScreamer);
+		}
+	}
+}
+
+
+void AScreamerActor::PerformFirstScreamer() const
+{
+	if (!IsPlayerLooking())
+	{
+		ScreamerMesh->SetVisibility(false);
+	}
+}
+
+void AScreamerActor::PerformSecondScreamer()
+{
+	GetWorld()->GetTimerManager().SetTimer(
+		SecondScreamerTimer,
+		this,
+		&AScreamerActor::ExecuteSecondScreamer,
+		SecondScreamerDelay);
+}
+
+void AScreamerActor::ExecuteSecondScreamer()
+{
+	SetActorTransform(ScreamerTransform);
 	if (!IsPlayerLooking())
 	{
 		PlaySound(OnMoveSound);
-		OnSetShouldMove();
+		ScreamerMesh->SetVisibility(true);
+		OnPlayerStartedScreamer.Broadcast(EMusicTriggerType::Screamer);
+
+		bSecondScreamerDone = true;
 	}
-}
-
-void AScreamerActor::SetWantsToClose()
-{
-	if (!IsPlayerLooking())
-	{
-		PlaySound(OnExitMoveSound);
-		OnSetShouldMove();
-	}
-}
-
-void AScreamerActor::OnSetShouldMove_Implementation()
-{
-    UE_LOG(LogTemp, Warning, TEXT("OnSetShouldMove_Implementation: This function currently does nothing."));
-}
-
-void AScreamerActor::OnSetShouldNotMove_Implementation()
-{
-    UE_LOG(LogTemp, Warning, TEXT("OnSetShouldNotMove_Implementation: This function currently does nothing."));
-}
-
-
-void AScreamerActor::PerformFirstScreamer()
-{
-	
 }
 
 bool AScreamerActor::IsPlayerLooking() const
