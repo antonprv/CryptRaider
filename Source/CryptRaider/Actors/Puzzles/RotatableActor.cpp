@@ -20,7 +20,7 @@ ARotatableActor::ARotatableActor()
 	RootComponent = StaticMesh;
 	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("Sound Player"));
 	AudioComponent->SetupAttachment(StaticMesh);
-	RotatorComponent = CreateDefaultSubobject<URotatorComponent>(TEXT("Mover Component"));
+	RotatorComponent = CreateDefaultSubobject<URotatorComponent>(TEXT("Rotator Component"));
 
 }
 
