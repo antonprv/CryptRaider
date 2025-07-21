@@ -35,7 +35,9 @@ public:
 	FVector TargetLocation {0.f, 0.f, 0.f};
 	
 	UPROPERTY(EditAnywhere)
-	float MoveSpeed {0.f};
+	float OpenSpeed {0.f};
+	UPROPERTY(EditAnywhere)
+    float CloseSpeed {0.f};
 
 	UFUNCTION(NotBlueprintable)
 	virtual void SetWantsToOpen() override;
@@ -56,5 +58,5 @@ private:
 	bool bIsMovingFinished {false};
 	
 	void MoveActor(const bool& bCanMove, const float & DeltaTimeSeconds);
-	bool MoveToLocation (const FVector& End, const float & DeltaTimeSeconds);
+	bool MoveToLocation (const FVector& End, const float & DeltaTimeSeconds, const float & InterpSpeed);
 };

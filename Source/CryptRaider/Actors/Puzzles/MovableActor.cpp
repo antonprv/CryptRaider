@@ -23,6 +23,7 @@ AMovableActor::AMovableActor()
 	RootComponent = StaticMesh;
 	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("Sound Player"));
 	AudioComponent->SetupAttachment(StaticMesh);
+	AudioComponent->SetAutoActivate(false);
 	MoverComponent = CreateDefaultSubobject<UMoverComponent>(TEXT("Mover Component"));
 	
 	EditorBillboard = CreateDefaultSubobject<UBillboardComponent>(TEXT("Editor Billboard"));
@@ -79,23 +80,36 @@ void AMovableActor::HandlePressurePlate(ETriggerDirection TriggerDirection)
 	{
 	case ETriggerDirection::Open:
 		bPlayedOnce = false;
-		PlaySound(MoveStartSound);
+		PlaySound(MoveStartSound, RoomSoundType);
 		break;
 	case ETriggerDirection::Close:
 		bPlayedOnce = false;
-		PlaySound(MoveEndSound);
+		PlaySound(MoveEndSound, RoomSoundType);
 		break;
 	default:
 		UE_LOG(LogAMovableActor, Warning, TEXT("Got Inappropriate value from UTriggerComponent"))
 	}
 }
 
-void AMovableActor::PlaySound(USoundBase* SoundToPlay)
+void AMovableActor::PlaySound(USoundBase* SoundToPlay, const ERoomSoundType& RoomSound)
 {
-	if (SoundToPlay && GetWorld() && !bPlayedOnce)
+	DECLARE_LOG_CATEGORY_CLASS(LogARotatableActor, Warning, Warning)
+	
+	if (SoundToPlay && GetWorld() && !bPlayedOnce && AudioComponent)
 	{
 		AudioComponent->SetSound(SoundToPlay);
 		AudioComponent->Play();
+		switch (RoomSound)
+		{
+		case ERoomSoundType::SmallRoom:
+			AudioComponent->SetTriggerParameter(USoundHelpers::SmallRoomTriggerName);
+			break;
+		case ERoomSoundType::BigRoom:
+			AudioComponent->SetTriggerParameter(USoundHelpers::BigRoomTriggerName);
+			break;
+		default:
+			UE_LOG(LogARotatableActor, Warning, TEXT("PlaySound function triggered non-existing value"))
+		}
 		
 		bPlayedOnce = true;
 	}

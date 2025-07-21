@@ -67,16 +67,16 @@ void URotatorComponent::RotateActor(const bool& bCanMove, const float& DeltaTime
 
 	if (bCanMove)
 	{
-		bIsMovingFinished = RotateToRotation(TargetRotation, DeltaTimeSeconds);
+		bIsMovingFinished = RotateToRotation(TargetRotation, DeltaTimeSeconds, OpenSpeed);
 	}
 	else if (!bCanMove)
 	{
-		bIsMovingFinished = RotateToRotation(DefaultRotation, DeltaTimeSeconds);
+		bIsMovingFinished = RotateToRotation(DefaultRotation, DeltaTimeSeconds, CloseSpeed);
 	}
 }
 
 
-bool URotatorComponent::RotateToRotation(const FRotator& End, const float & DeltaTimeSeconds)
+bool URotatorComponent::RotateToRotation(const FRotator& End, const float & DeltaTimeSeconds, const float & InterpSpeed)
 {
 	ActorToMove->SetActorRotation(CurrentRotation);
 	
@@ -84,7 +84,7 @@ bool URotatorComponent::RotateToRotation(const FRotator& End, const float & Delt
 		CurrentRotation,
 		End,
 		DeltaTimeSeconds,
-		MoveSpeed);
+		InterpSpeed);
 	
 	if (CurrentRotation.Equals(End, 0.5f))
 	{

@@ -70,16 +70,16 @@ void UMoverComponent::MoveActor(const bool & bCanMove, const float & DeltaTimeSe
 
 	if (bCanMove)
 	{
-		bIsMovingFinished = MoveToLocation(TargetLocation, DeltaTimeSeconds);
+		bIsMovingFinished = MoveToLocation(TargetLocation, DeltaTimeSeconds, OpenSpeed);
 	}
 	else if (!bCanMove)
 	{
-		bIsMovingFinished = MoveToLocation(DefaultLocation, DeltaTimeSeconds);
+		bIsMovingFinished = MoveToLocation(DefaultLocation, DeltaTimeSeconds, CloseSpeed);
 	}
 }
 
 
-bool UMoverComponent::MoveToLocation(const FVector& End, const float& DeltaTimeSeconds)
+bool UMoverComponent::MoveToLocation(const FVector& End, const float& DeltaTimeSeconds, const float & InterpSpeed)
 {
 	ActorToMove->SetActorLocation(CurrentLocation);
 	
@@ -87,7 +87,7 @@ bool UMoverComponent::MoveToLocation(const FVector& End, const float& DeltaTimeS
 		CurrentLocation,
 		End,
 		DeltaTimeSeconds,
-		MoveSpeed);
+		InterpSpeed);
 
 	if (CurrentLocation.Equals(End, 0.5f))
 	{
