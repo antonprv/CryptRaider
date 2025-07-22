@@ -3,5 +3,5 @@
 
 #include "SoundHelpers.h"
 
-FName USoundHelpers::BigRoomTriggerName = FName("BigRoom");
-FName USoundHelpers::SmallRoomTriggerName = FName("SmallRoom");
+const FName USoundHelpers::BigRoomTriggerName = FName("BigRoom");
+const FName USoundHelpers::SmallRoomTriggerName = FName("SmallRoom");

@@ -29,6 +29,6 @@ class CRYPTRAIDER_API USoundHelpers : public UObject
 	GENERATED_BODY()
 
 public:
-	static FName SmallRoomTriggerName;
-	static FName BigRoomTriggerName;
+	static const FName SmallRoomTriggerName;
+	static const FName BigRoomTriggerName;
 };
