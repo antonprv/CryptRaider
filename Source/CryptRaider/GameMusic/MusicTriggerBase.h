@@ -55,6 +55,4 @@ private:
 
 	UPROPERTY()
 	UShapeComponent* CollisionShape {nullptr};
-
-	bool bIsFirstLaunch {true};
 };
