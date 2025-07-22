@@ -41,9 +41,17 @@ void AMusicTriggerBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void AMusicTriggerBase::OnPlayerEnterOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor && OtherActor->IsA(ACharacter::StaticClass()))
+	// avoid playing entrance music at the start of the game instead of main menu music (temporary solution)
+	if (bIsFirstLaunch && MusicToPlay == EMusicTriggerType::Entrance)
 	{
-		OnPlayerEnterMusicArea.Broadcast(MusicToPlay);
+		bIsFirstLaunch = false;
+	}
+	else if (!bIsFirstLaunch)
+	{
+		if (OtherActor && OtherActor->IsA(ACharacter::StaticClass()))
+		{
+			OnPlayerEnterMusicArea.Broadcast(MusicToPlay);
+		}
 	}
 }
 

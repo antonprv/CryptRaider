@@ -3,12 +3,7 @@
 
 #include "TriggerComponent.h"
 
-#include "AssetTypeCategories.h"
-
 #include "CryptRaider/Components/Interfaces/Movable.h"
-
-#include "UObject/FastReferenceCollector.h"
-
 
 // Sets default values for this component's properties
 UTriggerComponent::UTriggerComponent()
