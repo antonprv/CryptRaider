@@ -14,6 +14,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStartedScreamer, EMusicTrig
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerEndedScreamer, EMusicTriggerType, MusicToPlay);
 
 class UBillboardComponent;
+class ANoteActor;
+class UAudioComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(Blueprintable) )
 class CRYPTRAIDER_API AScreamerActor : public AActor
@@ -43,6 +45,10 @@ public:
 		Tooltip="In-game mesh of the screamer actor"))
 	UStaticMeshComponent* ScreamerMesh {nullptr};
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(
+		Tooltip = "Note that screamer Actor is holding when player sees it"))
+	ANoteActor* NoteActor {nullptr};
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (
 		ToolTip="Where actor is goint to move and how is it goint to rotate on second screamer"))
 	FTransform ScreamerTransform {GetActorTransform()};
@@ -55,6 +61,9 @@ public:
 		Tooltip="Sound to play when actor stops triggering"))
 	USoundBase* OnExitMoveSound {nullptr};
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UAudioComponent* AudioComponent {nullptr};
+	
 	// Music
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Music")
 	FOnPlayerStartedScreamer OnPlayerStartedScreamer;
@@ -93,4 +102,5 @@ private:
 	void ExecuteSecondScreamer();
 	bool IsPlayerLooking() const;
 	void PlaySound(USoundBase* SoundToPlay) const;
+	void SetSoundVolume() const;
 };

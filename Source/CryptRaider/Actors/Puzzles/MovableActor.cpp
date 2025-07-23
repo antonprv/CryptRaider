@@ -8,6 +8,8 @@
 
 #include "CryptRaider/Actors/PressurePlateActor.h"
 #include "CryptRaider/Components/MoverComponent.h"
+#include "CryptRaider/GameSave/CryptRaiderSave.h"
+#include "CryptRaider/GameSave/Interfaces/GameSaver.h"
 
 #include "Kismet/GameplayStatics.h"
 
@@ -98,6 +100,7 @@ void AMovableActor::PlaySound(USoundBase* SoundToPlay, const ERoomSoundType& Roo
 	if (SoundToPlay && GetWorld() && !bPlayedOnce && AudioComponent)
 	{
 		AudioComponent->SetSound(SoundToPlay);
+		SetSoundVolume();
 		AudioComponent->Play();
 		switch (RoomSound)
 		{
@@ -112,5 +115,20 @@ void AMovableActor::PlaySound(USoundBase* SoundToPlay, const ERoomSoundType& Roo
 		}
 		
 		bPlayedOnce = true;
+	}
+}
+
+void AMovableActor::SetSoundVolume() const
+{
+	UGameInstance* GameInstance = GetGameInstance();
+	if (GameInstance->Implements<UGameSaver>())
+	{
+		if (IGameSaver* GameSaver = Cast<IGameSaver>(GameInstance))
+		{
+			if (const UCryptRaiderSave* SavedGame = GameSaver->GetGameData())
+			{
+				AudioComponent->SetVolumeMultiplier(SavedGame->PlayerSave.EnvironmentVolume);
+			}
+		}
 	}
 }

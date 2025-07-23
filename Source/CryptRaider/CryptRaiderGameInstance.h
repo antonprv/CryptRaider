@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "TaskSyncManager.h"
+
 #include "Engine/GameInstance.h"
 
-#include "GameSave/GameSaver.h"
+#include "GameSave/Interfaces/GameSaver.h"
 
 #include "CryptRaiderGameInstance.generated.h"
 
@@ -31,6 +33,7 @@ public:
 	
 protected:
 	virtual void Init() override;
+	
 
 private:
 	UPROPERTY()

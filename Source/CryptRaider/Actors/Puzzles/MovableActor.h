@@ -60,4 +60,5 @@ private:
 	void HandlePressurePlate(ETriggerDirection TriggerDirection);
 	bool bPlayedOnce {false};
 	void PlaySound(USoundBase* SoundToPlay, const ERoomSoundType& RoomSound);
+	void SetSoundVolume() const;
 };

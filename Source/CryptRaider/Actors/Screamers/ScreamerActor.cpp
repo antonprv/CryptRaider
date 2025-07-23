@@ -3,7 +3,12 @@
 
 #include "ScreamerActor.h"
 
+#include "Components/AudioComponent.h"
 #include "Components/BillboardComponent.h"
+
+#include "CryptRaider/Actors/NoteActor.h"
+#include "CryptRaider/GameSave/CryptRaiderSave.h"
+#include "CryptRaider/GameSave/Interfaces/GameSaver.h"
 
 #include "Kismet/GameplayStatics.h"
 
@@ -23,6 +28,12 @@ AScreamerActor::AScreamerActor()
 	EditorBillboard = CreateDefaultSubobject<UBillboardComponent>(TEXT("Editor Billboard"));
 
 	EditorBillboard->SetupAttachment(ScreamerMesh);
+
+	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio Component"));
+	AudioComponent->SetupAttachment(ScreamerMesh);
+
+	NoteActor = CreateDefaultSubobject<ANoteActor>(TEXT("Note Actor"));
+	NoteActor->SetActorTransform(this->GetActorTransform());
 	
 	static ConstructorHelpers::FObjectFinder<UTexture2D> SpriteFinder(
 		TEXT("/Engine/EditorResources/EmptyActor"));
@@ -201,10 +212,23 @@ void AScreamerActor::PlaySound(USoundBase* SoundToPlay) const
 {
 	if (SoundToPlay && GetWorld())
 	{
-		UGameplayStatics::PlaySoundAtLocation(
-			this, 
-			SoundToPlay, 
-			GetOwner()->GetActorLocation() // Play at the owner's location
-		);
+		AudioComponent->SetSound(SoundToPlay);
+		SetSoundVolume();
+		AudioComponent->Play();
+	}
+}
+
+void AScreamerActor::SetSoundVolume() const
+{
+	UGameInstance* GameInstance = GetGameInstance();
+	if (GameInstance->Implements<UGameSaver>())
+	{
+		if (IGameSaver* GameSaver = Cast<IGameSaver>(GameInstance))
+		{
+			if (const UCryptRaiderSave* SavedGame = GameSaver->GetGameData())
+			{
+				AudioComponent->SetVolumeMultiplier(SavedGame->PlayerSave.EnvironmentVolume);
+			}
+		}
 	}
 }
