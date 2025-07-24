@@ -10,6 +10,8 @@
 #include "GameFramework/Actor.h"
 #include "MovableActor.generated.h"
 
+DECLARE_LOG_CATEGORY_CLASS(LogAMovableActor, Warning, Warning)
+
 class UMoverComponent;
 class UAudioComponent;
 class UBillboardComponent;

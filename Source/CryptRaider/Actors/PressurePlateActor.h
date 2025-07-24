@@ -7,11 +7,16 @@
 #include "CryptRaider/Components/Puzzles/TriggerComponent.h"
 #include "CryptRaider/GameMusic/MusicHelpers.h"
 
+#if WITH_EDITOR
+#include "Components/BillboardComponent.h"
+#endif
+
 #include "GameFramework/Actor.h"
 #include "PressurePlateActor.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDungeonDoorOpen, EMusicTriggerType, MusicToPlay);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPPTriggered, ETriggerDirection, TriggerDirection);
+
 
 UCLASS()
 class CRYPTRAIDER_API APressurePlateActor : public AActor
@@ -39,8 +44,11 @@ public:
 	UStaticMeshComponent* StaticMesh {nullptr};
 
 private:
+	
+#if WITH_EDITORONLY_DATA
 	UPROPERTY()
 	UBillboardComponent* EditorBillboard {nullptr};
+#endif
 	
 	UFUNCTION()
 	void HandleDoorOpen(const EMusicTriggerType MusicToPlay);

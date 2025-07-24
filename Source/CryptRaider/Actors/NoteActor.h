@@ -3,16 +3,22 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "TaskSyncManager.h"
+
+#include "CryptRaider/GameMusic/MusicHelpers.h"
+
 #include "GameFramework/Actor.h"
 
 #include "Interfaces/Pickable.h"
 
 #include "NoteActor.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerInNoteArea);
+class UTextRenderComponent;
 
-class UShapeComponent;
-class UStaticMeshComponent;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerInNoteArea, bool, bIsInNoteArea);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerPickedUpNote);
+
+class USphereComponent;
 
 UCLASS()
 class CRYPTRAIDER_API ANoteActor : public AActor, public IPickable
@@ -23,30 +29,54 @@ public:
 	// Sets default values for this actor's properties
 	ANoteActor();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (
-		Tooltip="Note to show to the player when screamer triggers"))
-	UStaticMeshComponent* NoteMesh {nullptr};
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (
-		Tooltip="Collision to register that player can pick up the note"))
-	UShapeComponent* NoteCollisionShape {nullptr};
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (
-		Tooltip="Sound to play when player picks up the note"))
-	UAudioComponent* AudioComponent {nullptr};
-	
-	UPROPERTY(BlueprintAssignable)
-	FOnPlayerInNoteArea OnPlayerInNoteArea;
-	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
+	
 	UFUNCTION()
-	void OnPlayerInRange(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	                     int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnNoteBecomeVisible(EMusicTriggerType MusicToPlay);
+	UFUNCTION()
+	void OnNoteBecomeInvisible();
+	
+	UFUNCTION()
+	void OnPlayerEnterPickupArea(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	                             UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+	                             const FHitResult& SweepResult);
+	UFUNCTION()
+	void OnPlayerExitPickupArea(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	                            UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 public:	
 	virtual void SetPickedUp() override;
 
+	UPROPERTY(BlueprintAssignable, Category="Pickup events")
+	FOnPlayerPickedUpNote OnPlayerPickedUpNote;
+	UPROPERTY(BlueprintAssignable, Category="Pickup events")
+	FOnPlayerInNoteArea OnPlayerInNoteArea;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Pickup Collision")
+	USphereComponent* CollisionSphere {nullptr};
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Pickup Model")
+	UStaticMeshComponent* NoteMesh {nullptr};
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category ="Pickup advice")
+	UTextRenderComponent* FloatingText {nullptr};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Note Widget")
+	UClass* WidgetClass {nullptr};
+	
+private:
+	UPROPERTY()
+	TArray<AActor*> ScreamerActors {};
+	bool bCanPlayerSeeNote {false};
+
+	UPROPERTY()
+	APlayerController* PlayerController {nullptr};
+
+	bool bIsWidgetCreated {false};
+	void BindInteractionInput();
+	void UnbindInteractionInput();
+	void OnInteractPressed();
 };

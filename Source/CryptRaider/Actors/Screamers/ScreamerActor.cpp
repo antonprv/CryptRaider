@@ -6,7 +6,6 @@
 #include "Components/AudioComponent.h"
 #include "Components/BillboardComponent.h"
 
-#include "CryptRaider/Actors/NoteActor.h"
 #include "CryptRaider/GameSave/CryptRaiderSave.h"
 #include "CryptRaider/GameSave/Interfaces/GameSaver.h"
 
@@ -15,8 +14,6 @@
 // Sets default values
 AScreamerActor::AScreamerActor()
 {
-	DECLARE_LOG_CATEGORY_CLASS(LogAScreamerActor, Warning, Warning)
-	
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickInterval = 1.0f / 30.0f; // 30 Hz = 1/30 seconds per tick
@@ -31,9 +28,8 @@ AScreamerActor::AScreamerActor()
 
 	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio Component"));
 	AudioComponent->SetupAttachment(ScreamerMesh);
+	AudioComponent->SetAutoActivate(false);
 
-	NoteActor = CreateDefaultSubobject<ANoteActor>(TEXT("Note Actor"));
-	NoteActor->SetActorTransform(this->GetActorTransform());
 	
 	static ConstructorHelpers::FObjectFinder<UTexture2D> SpriteFinder(
 		TEXT("/Engine/EditorResources/EmptyActor"));
@@ -94,8 +90,6 @@ void AScreamerActor::Tick(float DeltaSeconds)
 
 void AScreamerActor::HandlePlayerEnterScreamer(EScreamerType ScreamerType)
 {
-	DECLARE_LOG_CATEGORY_CLASS(LogAScreamerActor, Warning, Warning)
-	
 	switch (ScreamerType)
 	{
 	case EScreamerType::FirstScreamer:
@@ -118,9 +112,10 @@ void AScreamerActor::HandlePlayerExitScreamer(EScreamerType ScreamerType)
 		OnPlayerEndedScreamer.Broadcast(EMusicTriggerType::Screamer);
 		if (!IsPlayerLooking() && bSecondScreamerDone)
 		{
-			PlaySound(OnExitMoveSound);
+			PlaySound(RoomSoundType);
 			bCanHideFromPlayer = true;
 			SetActorTransform(DefaultTransform);
+			OnScreamerDone.Broadcast();
 		}
 		else
 		{
@@ -130,6 +125,7 @@ void AScreamerActor::HandlePlayerExitScreamer(EScreamerType ScreamerType)
 		}
 	}
 }
+
 
 void AScreamerActor::UnsubscribeFromAll()
 {
@@ -179,7 +175,7 @@ void AScreamerActor::ExecuteSecondScreamer()
 	if (!IsPlayerLooking() && bCanPlaySecondScreamer)
 	{
 		SetActorTransform(ScreamerTransform);
-		PlaySound(OnMoveSound);
+		PlaySound(RoomSoundType);
 		bCanHideFromPlayer = false;
 		OnPlayerStartedScreamer.Broadcast(EMusicTriggerType::Screamer);
 
@@ -208,27 +204,41 @@ bool AScreamerActor::IsPlayerLooking() const
 	return DotProduct > QuantumEffectPercentage;
 }
 
-void AScreamerActor::PlaySound(USoundBase* SoundToPlay) const
+
+void AScreamerActor::PlaySound(const ERoomSoundType& RoomSound)
 {
-	if (SoundToPlay && GetWorld())
+	if (GetWorld() && !bPlayedOnce && AudioComponent)
 	{
-		AudioComponent->SetSound(SoundToPlay);
-		SetSoundVolume();
 		AudioComponent->Play();
+		SetSoundVolume();
+		switch (RoomSound)
+		{
+		case ERoomSoundType::SmallRoom:
+			AudioComponent->SetTriggerParameter(USoundHelpers::SmallRoomTriggerName);
+			break;
+		case ERoomSoundType::BigRoom:
+			AudioComponent->SetTriggerParameter(USoundHelpers::BigRoomTriggerName);
+			break;
+		default:
+			UE_LOG(LogAScreamerActor, Warning, TEXT("PlaySound function triggered non-existing value"))
+		}
+		
+		bPlayedOnce = true;
 	}
 }
 
 void AScreamerActor::SetSoundVolume() const
 {
 	UGameInstance* GameInstance = GetGameInstance();
-	if (GameInstance->Implements<UGameSaver>())
+	if (IGameSaver* GameSaver = Cast<IGameSaver>(GameInstance))
 	{
-		if (IGameSaver* GameSaver = Cast<IGameSaver>(GameInstance))
+		if (const UCryptRaiderSave* SavedGame = GameSaver->GetGameData())
 		{
-			if (const UCryptRaiderSave* SavedGame = GameSaver->GetGameData())
-			{
-				AudioComponent->SetVolumeMultiplier(SavedGame->PlayerSave.EnvironmentVolume);
-			}
+			AudioComponent->SetVolumeMultiplier(SavedGame->PlayerSave.EnvironmentVolume);
 		}
+	}
+	else
+	{
+		UE_LOG(LogAScreamerActor, Error, TEXT("Failed to get volume from user settings"))
 	}
 }

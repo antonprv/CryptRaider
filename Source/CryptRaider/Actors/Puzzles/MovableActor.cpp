@@ -18,8 +18,6 @@ AMovableActor::AMovableActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-
-	DECLARE_LOG_CATEGORY_CLASS(LogAMovableActor, Warning, Warning)
 	
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Static Mesh Component"));
 	RootComponent = StaticMesh;
@@ -76,8 +74,6 @@ void AMovableActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AMovableActor::HandlePressurePlate(ETriggerDirection TriggerDirection)
 {
-	DECLARE_LOG_CATEGORY_CLASS(LogAMovableActor, Warning, Warning)
-	
 	switch (TriggerDirection)
 	{
 	case ETriggerDirection::Open:
@@ -95,8 +91,6 @@ void AMovableActor::HandlePressurePlate(ETriggerDirection TriggerDirection)
 
 void AMovableActor::PlaySound(USoundBase* SoundToPlay, const ERoomSoundType& RoomSound)
 {
-	DECLARE_LOG_CATEGORY_CLASS(LogARotatableActor, Warning, Warning)
-	
 	if (SoundToPlay && GetWorld() && !bPlayedOnce && AudioComponent)
 	{
 		AudioComponent->SetSound(SoundToPlay);
@@ -111,7 +105,7 @@ void AMovableActor::PlaySound(USoundBase* SoundToPlay, const ERoomSoundType& Roo
 			AudioComponent->SetTriggerParameter(USoundHelpers::BigRoomTriggerName);
 			break;
 		default:
-			UE_LOG(LogARotatableActor, Warning, TEXT("PlaySound function triggered non-existing value"))
+			UE_LOG(LogAMovableActor, Warning, TEXT("PlaySound function triggered non-existing value"))
 		}
 		
 		bPlayedOnce = true;
@@ -121,14 +115,15 @@ void AMovableActor::PlaySound(USoundBase* SoundToPlay, const ERoomSoundType& Roo
 void AMovableActor::SetSoundVolume() const
 {
 	UGameInstance* GameInstance = GetGameInstance();
-	if (GameInstance->Implements<UGameSaver>())
+	if (IGameSaver* GameSaver = Cast<IGameSaver>(GameInstance))
 	{
-		if (IGameSaver* GameSaver = Cast<IGameSaver>(GameInstance))
+		if (const UCryptRaiderSave* SavedGame = GameSaver->GetGameData())
 		{
-			if (const UCryptRaiderSave* SavedGame = GameSaver->GetGameData())
-			{
-				AudioComponent->SetVolumeMultiplier(SavedGame->PlayerSave.EnvironmentVolume);
-			}
+			AudioComponent->SetVolumeMultiplier(SavedGame->PlayerSave.EnvironmentVolume);
 		}
+	}
+	else
+	{
+		UE_LOG(LogAMovableActor, Error, TEXT("Failed to get volume from user settings"))
 	}
 }

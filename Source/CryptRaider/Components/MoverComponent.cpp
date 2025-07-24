@@ -18,7 +18,7 @@ UMoverComponent::UMoverComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 	// Make sure to tick together with Mover Components, and offload the game tick.
-	PrimaryComponentTick.TickInterval = 1.0f / 60.0f; // 30 Hz = 1/30 seconds per tick
+	PrimaryComponentTick.TickInterval = 1.f / 30.f; // 30 Hz = 1/30 seconds per tick
 }
 
 

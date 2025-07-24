@@ -15,6 +15,7 @@ class UAudioComponent;
 class UBillboardComponent;
 
 
+DECLARE_LOG_CATEGORY_CLASS(LogARotatableActor, Warning, Warning)
 
 UCLASS()
 class CRYPTRAIDER_API ARotatableActor : public AActor

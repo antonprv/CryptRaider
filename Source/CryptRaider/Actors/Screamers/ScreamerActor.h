@@ -6,12 +6,17 @@
 #include "ScreamerTriggerActor.h"
 
 #include "CryptRaider/GameMusic/MusicHelpers.h"
+#include "CryptRaider/GameSound/SoundHelpers.h"
 
 #include "GameFramework/Actor.h"
 #include "ScreamerActor.generated.h"
 
+enum class ERoomSoundType;
+DECLARE_LOG_CATEGORY_CLASS(LogAScreamerActor, Error, Error)
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStartedScreamer, EMusicTriggerType, MusicToPlay);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerEndedScreamer, EMusicTriggerType, MusicToPlay);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnScreamerDone);
 
 class UBillboardComponent;
 class ANoteActor;
@@ -44,29 +49,25 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (
 		Tooltip="In-game mesh of the screamer actor"))
 	UStaticMeshComponent* ScreamerMesh {nullptr};
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(
-		Tooltip = "Note that screamer Actor is holding when player sees it"))
-	ANoteActor* NoteActor {nullptr};
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (
 		ToolTip="Where actor is goint to move and how is it goint to rotate on second screamer"))
 	FTransform ScreamerTransform {GetActorTransform()};
+	
 
-	// Sounds
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sound Effect", meta=(
-		Tooltip="Sound to play when actor triggers"))
-	USoundBase* OnMoveSound {nullptr};
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sound Effect", meta=(
-		Tooltip="Sound to play when actor stops triggering"))
-	USoundBase* OnExitMoveSound {nullptr};
-
+	UPROPERTY(EditAnywhere, Category="Sound", meta=(
+			Tooltip="BigRoom = echo, SmallRoom = no echo"))
+	ERoomSoundType RoomSoundType {ERoomSoundType::SmallRoom};
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UAudioComponent* AudioComponent {nullptr};
 	
 	// Music
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Music")
 	FOnPlayerStartedScreamer OnPlayerStartedScreamer;
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Other screamer parts")
+	FOnScreamerDone OnScreamerDone;
+	
 	bool bSecondScreamerDone {false};
 	UPROPERTY(BlueprintAssignable, Category="Music");
 	FOnPlayerEndedScreamer OnPlayerEndedScreamer;
@@ -101,6 +102,7 @@ private:
 
 	void ExecuteSecondScreamer();
 	bool IsPlayerLooking() const;
-	void PlaySound(USoundBase* SoundToPlay) const;
+	bool bPlayedOnce;
+	void PlaySound(const ERoomSoundType& RoomSound);
 	void SetSoundVolume() const;
 };

@@ -18,8 +18,6 @@ ARotatableActor::ARotatableActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-
-	DECLARE_LOG_CATEGORY_CLASS(LogARotatableActor, Warning, Warning)
 	
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Static Mesh Component"));
 	RootComponent = StaticMesh;
@@ -77,8 +75,6 @@ void ARotatableActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void ARotatableActor::HandlePressurePlate(ETriggerDirection TriggerDirection)
 {
-	DECLARE_LOG_CATEGORY_CLASS(LogARotatableActor, Warning, Warning)
-	
 	switch (TriggerDirection)
 	{
 	case ETriggerDirection::Open:
@@ -96,8 +92,6 @@ void ARotatableActor::HandlePressurePlate(ETriggerDirection TriggerDirection)
 
 void ARotatableActor::PlaySound(USoundBase* SoundToPlay, const ERoomSoundType& RoomSound)
 {
-	DECLARE_LOG_CATEGORY_CLASS(LogARotatableActor, Warning, Warning)
-	
 	if (SoundToPlay && GetWorld() && !bPlayedOnce && AudioComponent)
 	{
 		AudioComponent->SetSound(SoundToPlay);
@@ -123,15 +117,16 @@ void ARotatableActor::PlaySound(USoundBase* SoundToPlay, const ERoomSoundType& R
 void ARotatableActor::SetSoundVolume() const
 {
 	UGameInstance* GameInstance = GetGameInstance();
-	if (GameInstance->Implements<UGameSaver>())
+	if (IGameSaver* GameSaver = Cast<IGameSaver>(GameInstance))
 	{
-		if (IGameSaver* GameSaver = Cast<IGameSaver>(GameInstance))
+		if (const UCryptRaiderSave* SavedGame = GameSaver->GetGameData())
 		{
-			if (const UCryptRaiderSave* SavedGame = GameSaver->GetGameData())
-			{
-				AudioComponent->SetVolumeMultiplier(SavedGame->PlayerSave.EnvironmentVolume);
-			}
+			AudioComponent->SetVolumeMultiplier(SavedGame->PlayerSave.EnvironmentVolume);
 		}
+	}
+	else
+	{
+		UE_LOG(LogARotatableActor, Error, TEXT("Failed to get volume from user settings"))
 	}
 }
 

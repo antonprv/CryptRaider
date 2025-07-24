@@ -11,8 +11,10 @@ APressurePlateActor::APressurePlateActor()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+#if WITH_EDITORONLY_DATA
 	DECLARE_LOG_CATEGORY_CLASS(LogAPressurePlateActor, Warning, Warning)
-
+#endif
+	
 	TriggerComponent = CreateDefaultSubobject<UTriggerComponent>(TEXT("Trigger Component"));
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Pressure Plate Mesh"));
 	RootComponent = StaticMesh;
@@ -24,7 +26,8 @@ APressurePlateActor::APressurePlateActor()
 	EditorBillboard = CreateDefaultSubobject<UBillboardComponent>(TEXT("Editor Billboard"));
 
 	EditorBillboard->SetupAttachment(StaticMesh);
-	
+
+#if WITH_EDITORONLY_DATA
 	static ConstructorHelpers::FObjectFinder<UTexture2D> SpriteFinder(
 		TEXT("/Engine/EditorResources/EmptyActor"));
 
@@ -37,7 +40,8 @@ APressurePlateActor::APressurePlateActor()
 		UE_LOG(LogAPressurePlateActor, Warning,
 			TEXT("Was not able to find the EditorBillboard sprite"))
 	}
-
+#endif
+	
 }
 
 // Called when the game starts or when spawned
