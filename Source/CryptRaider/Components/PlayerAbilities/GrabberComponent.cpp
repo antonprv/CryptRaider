@@ -27,8 +27,9 @@ UGrabberComponent::UGrabberComponent()
 void UGrabberComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
+#if WITH_EDITORONLY_DATA
 	DECLARE_LOG_CATEGORY_CLASS(UGrabberComponentLog, Error, Error)
+#endif
 	
 	OwningActor = GetOwner();
 	OwnerCamera = OwningActor->FindComponentByClass<UCameraComponent>();
@@ -36,13 +37,19 @@ void UGrabberComponent::BeginPlay()
 	if (OwnerCamera == nullptr)
 	{
 		bIsValid = false;
-		
+
+#if WITH_EDITORONLY_DATA
 		UE_LOG(UGrabberComponentLog, Error, TEXT("No Camera Component found in the owning Actor"))
+#endif
+		
 	}
 	else if (GrabHandle == nullptr)
 	{
 		bIsValid = false;
+
+#if WITH_EDITORONLY_DATA
 		UE_LOG(UGrabberComponentLog, Error, TEXT("No Physics Component found in the owning Actor"))
+#endif
 	}
 }
 
@@ -66,14 +73,18 @@ void UGrabberComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 void UGrabberComponent::Grab()
 {
+#if WITH_EDITORONLY_DATA
 	DECLARE_LOG_CATEGORY_CLASS(UGrabberPhysics, Error, Error)
+#endif
 	
 	if (bHasHit)
 	{
 		if (!GrabResult.GetComponent()->IsSimulatingPhysics())
 		{
+#if WITH_EDITORONLY_DATA
 			UE_LOG(UGrabberPhysics, Error,
 				TEXT("%s is not simulating physics"), *GrabResult.GetActor()->GetActorNameOrLabel())
+#endif
 			return;
 		}
 
@@ -116,10 +127,13 @@ void UGrabberComponent::TraceFromCamera(const float& TraceDistance, const float&
 		return;
 	}
 
+#if WITH_EDITORONLY_DATA
 	if (bIsDebugging)
 	{
 		DrawDebug(TraceDistance, GrabRadius, OutStartTrace, OutEndTrace);
 	}
+#endif
+	
 
 	OutStartTrace = OwnerCamera->GetComponentLocation();
 	OutEndTrace = OwnerCamera->GetComponentLocation() + OwnerCamera->GetForwardVector() * TraceDistance;
@@ -134,6 +148,7 @@ void UGrabberComponent::TraceFromCamera(const float& TraceDistance, const float&
 	
 }
 
+#if WITH_EDITORONLY_DATA
 void UGrabberComponent::DrawDebug(const float& TraceDistance, const float& SphereRadius, const FVector& StartTrace,
 	const FVector& EndTrace)
 {
@@ -156,3 +171,4 @@ void UGrabberComponent::DrawDebug(const float& TraceDistance, const float& Spher
 			FColor::Emerald);
 	}
 }
+#endif

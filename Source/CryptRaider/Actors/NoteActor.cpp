@@ -3,7 +3,6 @@
 
 #include "NoteActor.h"
 
-#include "EditorMetadataOverrides.h"
 #include "PressurePlateActor.h"
 
 #include "Blueprint/UserWidget.h"
@@ -54,16 +53,22 @@ ANoteActor::ANoteActor()
 void ANoteActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AScreamerActor::StaticClass(), ScreamerActors);
-	for (AActor* Actor : ScreamerActors)
-	{
-		if (AScreamerActor* ScreamerActor = Cast<AScreamerActor>(Actor))
-		{
-			ScreamerActor->OnPlayerStartedScreamer.AddDynamic(this, &ANoteActor::OnNoteBecomeVisible);
-			ScreamerActor->OnScreamerDone.AddDynamic(this, &ANoteActor::OnNoteBecomeInvisible);
-		}
-	}
+
+	TArray<AActor*> RawScreamerActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AScreamerActor::StaticClass(), RawScreamerActors);
+
+	ScreamerActors.Empty();
+    for (AActor* Actor : RawScreamerActors)
+    {
+        ScreamerActors.Add(Actor);  // This implicitly converts to TWeakObjectPtr
+        
+        if (AScreamerActor* ScreamerActor = Cast<AScreamerActor>(Actor))
+        {
+            ScreamerActor->OnPlayerStartedScreamer.AddDynamic(this, &ANoteActor::OnNoteBecomeVisible);
+            ScreamerActor->OnScreamerDone.AddDynamic(this, &ANoteActor::OnNoteBecomeInvisible);
+        }
+    }
+}
 }
 
 void ANoteActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -71,29 +76,47 @@ void ANoteActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	CollisionSphere->OnComponentBeginOverlap.RemoveDynamic(this, &ANoteActor::OnPlayerEnterPickupArea);
 	CollisionSphere->OnComponentEndOverlap.RemoveDynamic(this, &ANoteActor::OnPlayerExitPickupArea);
 
-	for (AActor* Actor : ScreamerActors)
+	// Safe iteration with weak pointers
+	for (auto It = ScreamerActors.CreateIterator(); It; ++It)
 	{
-		if (AScreamerActor* ScreamerActor = Cast<AScreamerActor>(Actor))
+		if (AActor* Actor = It->Get())  // Only processes valid actors
 		{
-			ScreamerActor->OnPlayerStartedScreamer.RemoveDynamic(this, &ANoteActor::OnNoteBecomeVisible);
-			ScreamerActor->OnScreamerDone.RemoveDynamic(this, &ANoteActor::OnNoteBecomeInvisible);
+			if (AScreamerActor* ScreamerActor = Cast<AScreamerActor>(Actor))
+			{
+				ScreamerActor->OnPlayerStartedScreamer.RemoveDynamic(this, &ANoteActor::OnNoteBecomeVisible);
+				ScreamerActor->OnScreamerDone.RemoveDynamic(this, &ANoteActor::OnNoteBecomeInvisible);
+			}
+		}
+		else
+		{
+			// Remove invalid entries
+			It.RemoveCurrent();
 		}
 	}
+    
+	// Always clean up input
+	UnbindInteractionInput();
 	
 	Super::EndPlay(EndPlayReason);
 }
 
 void ANoteActor::OnNoteBecomeInvisible()
 {
-	bCanPlayerSeeNote = false;
-	NoteMesh->SetHiddenInGame(true);
+	AsyncTask(ENamedThreads::GameThread, [this]()
+	{
+		bCanPlayerSeeNote = false;
+		NoteMesh->SetHiddenInGame(true);
+	});
 }
 
 void ANoteActor::OnNoteBecomeVisible(
 	EMusicTriggerType MusicToPlay)
 {
-	bCanPlayerSeeNote = true;
-	NoteMesh->SetHiddenInGame(false);
+	AsyncTask(ENamedThreads::GameThread, [this]()
+	{
+		bCanPlayerSeeNote = true;
+		NoteMesh->SetHiddenInGame(false);
+	});
 }
 
 void ANoteActor::OnPlayerEnterPickupArea(

@@ -23,11 +23,11 @@ APressurePlateActor::APressurePlateActor()
 	TriggerComponent->OnDoorOpen.AddDynamic(this, &APressurePlateActor::HandleDoorOpen);
 	TriggerComponent->OnPlateTriggered.AddDynamic(this, &APressurePlateActor::HandlePPTriggered);
 
+#if WITH_EDITORONLY_DATA
 	EditorBillboard = CreateDefaultSubobject<UBillboardComponent>(TEXT("Editor Billboard"));
 
 	EditorBillboard->SetupAttachment(StaticMesh);
-
-#if WITH_EDITORONLY_DATA
+	
 	static ConstructorHelpers::FObjectFinder<UTexture2D> SpriteFinder(
 		TEXT("/Engine/EditorResources/EmptyActor"));
 

@@ -71,6 +71,10 @@ private:
 			const bool& bIsDebugging = false);
 	
 	void KeepGrabbing() const;
+
+#if WITH_EDITORONLY_DATA
 	void DrawDebug(const float& TraceDistance,  const float& SphereRadius,
 		const FVector& StartTrace, const FVector& EndTrace);
+#endif
+	
 };

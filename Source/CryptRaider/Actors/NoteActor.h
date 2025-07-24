@@ -69,7 +69,7 @@ public:
 	
 private:
 	UPROPERTY()
-	TArray<AActor*> ScreamerActors {};
+	TArray<TWeakObjectPtr<AActor>> ScreamerActors;
 	bool bCanPlayerSeeNote {false};
 
 	UPROPERTY()
