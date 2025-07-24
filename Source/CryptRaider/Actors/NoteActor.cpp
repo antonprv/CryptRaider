@@ -49,6 +49,7 @@ ANoteActor::ANoteActor()
 
 }
 
+
 // Called when the game starts or when spawned
 void ANoteActor::BeginPlay()
 {
@@ -69,36 +70,33 @@ void ANoteActor::BeginPlay()
         }
     }
 }
-}
+
 
 void ANoteActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	CollisionSphere->OnComponentBeginOverlap.RemoveDynamic(this, &ANoteActor::OnPlayerEnterPickupArea);
-	CollisionSphere->OnComponentEndOverlap.RemoveDynamic(this, &ANoteActor::OnPlayerExitPickupArea);
+	CollisionSphere->OnComponentBeginOverlap.Clear();
+	CollisionSphere->OnComponentEndOverlap.Clear();
 
-	// Safe iteration with weak pointers
-	for (auto It = ScreamerActors.CreateIterator(); It; ++It)
+	// Clean delegates safely
+	for (TWeakObjectPtr<AActor> Actor : ScreamerActors)
 	{
-		if (AActor* Actor = It->Get())  // Only processes valid actors
+		if (Actor.Get())
 		{
-			if (AScreamerActor* ScreamerActor = Cast<AScreamerActor>(Actor))
+			if (AScreamerActor* Screamer = Cast<AScreamerActor>(Actor))
 			{
-				ScreamerActor->OnPlayerStartedScreamer.RemoveDynamic(this, &ANoteActor::OnNoteBecomeVisible);
-				ScreamerActor->OnScreamerDone.RemoveDynamic(this, &ANoteActor::OnNoteBecomeInvisible);
+				Screamer->OnPlayerStartedScreamer.RemoveDynamic(this, &ANoteActor::OnNoteBecomeVisible);
+				Screamer->OnScreamerDone.RemoveDynamic(this, &ANoteActor::OnNoteBecomeInvisible);
 			}
 		}
-		else
-		{
-			// Remove invalid entries
-			It.RemoveCurrent();
-		}
 	}
-    
-	// Always clean up input
+	// Ensure input cleanup
 	UnbindInteractionInput();
+	ScreamerActors.Empty();
+	PlayerController = nullptr;
 	
 	Super::EndPlay(EndPlayReason);
 }
+
 
 void ANoteActor::OnNoteBecomeInvisible()
 {
@@ -145,7 +143,7 @@ void ANoteActor::OnPlayerEnterPickupArea(
 		if (ACharacter* PlayerCharacter = Cast<ACharacter>(OtherActor))
 		{
 			PlayerController = Cast<APlayerController>(PlayerCharacter->GetController());
-			if (PlayerController)
+			if (PlayerController.Get())
 			{
 				BindInteractionInput();
 			}
@@ -195,24 +193,26 @@ void ANoteActor::BindInteractionInput()
 		InputComponent->RegisterComponent();
 	}
 
-	EnableInput(PlayerController);
+	EnableInput(PlayerController.Get());
 	InputComponent->BindKey(EKeys::E, IE_Pressed, this, &ANoteActor::OnInteractPressed);
 }
 
 void ANoteActor::UnbindInteractionInput()
 {
-	if (PlayerController == nullptr)
+	// Only proceed if we have a VALID player controller
+	if (PlayerController.IsValid())
 	{
-		return;
+		if (InputComponent)
+		{
+			InputComponent->ClearActionBindings();
+			PlayerController.Get()->PopInputComponent(InputComponent);
+		}
+		DisableInput(PlayerController.Get());
 	}
 
-	if (InputComponent)
-	{
-		InputComponent->ClearActionBindings();
-		InputComponent->ClearBindingValues();
-	}
-
-	DisableInput(PlayerController);
+	// Always reset pointers
+	PlayerController.Reset();
+	InputComponent = nullptr;
 }
 
 void ANoteActor::OnInteractPressed()
@@ -228,14 +228,14 @@ void ANoteActor::OnInteractPressed()
 		return;
 	}
 
-	if (UUserWidget* WBP_Note = CreateWidget<UUserWidget>(PlayerController, WidgetClass))
+	if (UUserWidget* WBP_Note = CreateWidget<UUserWidget>(PlayerController.Get(), WidgetClass))
 	{
 		if (bCanPlayerSeeNote)
 		{
 			WBP_Note->AddToViewport();
 			FInputModeUIOnly InputMode;
-			PlayerController->SetInputMode(InputMode);
-			PlayerController->SetShowMouseCursor(true);
+			PlayerController.Get()->SetInputMode(InputMode);
+			PlayerController.Get()->SetShowMouseCursor(true);
 
 			bIsWidgetCreated = true;
 		}

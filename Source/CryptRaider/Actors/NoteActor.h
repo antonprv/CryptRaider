@@ -33,7 +33,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-	
+	void CleanUp();
+
 	UFUNCTION()
 	void OnNoteBecomeVisible(EMusicTriggerType MusicToPlay);
 	UFUNCTION()
@@ -66,14 +67,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Note Widget")
 	UClass* WidgetClass {nullptr};
-	
+
 private:
 	UPROPERTY()
 	TArray<TWeakObjectPtr<AActor>> ScreamerActors;
 	bool bCanPlayerSeeNote {false};
 
 	UPROPERTY()
-	APlayerController* PlayerController {nullptr};
+	TWeakObjectPtr<APlayerController> PlayerController {nullptr};
 
 	bool bIsWidgetCreated {false};
 	void BindInteractionInput();
