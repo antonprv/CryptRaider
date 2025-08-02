@@ -16,6 +16,7 @@
 !Config/**
 !Plugins/**
 !Content/Blueprints/**
+!Content/Art/UI/**
 
 # Allow any files from /RawContent dir.
 # Any file in /RawContent dir will be managed by git lfs.
