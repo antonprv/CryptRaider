@@ -137,6 +137,18 @@ void UGrabberComponent::TraceFromCamera(const float& TraceDistance, const float&
 
 	OutStartTrace = OwnerCamera->GetComponentLocation();
 	OutEndTrace = OwnerCamera->GetComponentLocation() + OwnerCamera->GetForwardVector() * TraceDistance;
+
+	if (GetWorld()->SweepSingleByChannel(
+		OutHitResult,
+		OutStartTrace,
+		OutEndTrace,
+		FQuat::Identity,
+		ECC_Visibility,
+		FCollisionShape::MakeSphere(SphereRadius)))
+	{
+		OutIsHit = false;
+		return;
+	}
 	
 	OutIsHit = GetWorld()->SweepSingleByChannel(
 		OutHitResult,
