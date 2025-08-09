@@ -25,6 +25,7 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:	
 	// Called every frame
@@ -64,11 +65,18 @@ private:
 	FVector GrabStart {0.f, 0.f, 0.f};
 	FVector GrabEnd {0.f, 0.f, 0.f};
 	bool bIsGrabbing {false};
+	
+	bool bCanTraceTroughWalls { true };
+	UPROPERTY()
+	TArray<AActor*> TypeSwitchActors {};
+	void SubscribeToTypeSwitchers();
+	UFUNCTION()
+	void SetCanTraceTroughWalls(bool bCanTrace);
 
 	void TraceFromCamera (const float& TraceDistance, const float& SphereRadius,
-			FVector& OutStartTrace, FVector& OutEndTrace,
-			FHitResult& OutHitResult, bool& OutIsHit,
-			const bool& bIsDebugging = false);
+	                      FVector& OutStartTrace, FVector& OutEndTrace,
+	                      FHitResult& OutHitResult, bool& OutIsHit,
+	                      const bool& bIsDebugging = false);
 	
 	void KeepGrabbing() const;
 

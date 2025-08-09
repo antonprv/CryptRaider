@@ -8,7 +8,11 @@
 
 #include "Camera/CameraComponent.h"
 
+#include "CryptRaider/Actors/Hotfix/SelectTypeSwitcher.h"
+
 #include "Engine/World.h"
+
+#include "Kismet/GameplayStatics.h"
 
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 
@@ -27,6 +31,8 @@ UGrabberComponent::UGrabberComponent()
 void UGrabberComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	
 #if WITH_EDITORONLY_DATA
 	DECLARE_LOG_CATEGORY_CLASS(UGrabberComponentLog, Error, Error)
 #endif
@@ -53,6 +59,38 @@ void UGrabberComponent::BeginPlay()
 	}
 }
 
+void UGrabberComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	for (AActor* Actor : TypeSwitchActors)
+	{
+		ASelectTypeSwitcher* Switcher = Cast<ASelectTypeSwitcher>(Actor);
+		Switcher->OnPlayerEnteredArea.RemoveDynamic(this, &UGrabberComponent::SetCanTraceTroughWalls);
+	}
+	
+	Super::EndPlay(EndPlayReason);
+}
+
+void UGrabberComponent::SubscribeToTypeSwitchers()
+{
+	if (GetWorld())
+	{
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASelectTypeSwitcher::StaticClass(), TypeSwitchActors);
+
+		if (TypeSwitchActors.Num() > 0)
+		{
+			for (AActor* Actor : TypeSwitchActors)
+			{
+				ASelectTypeSwitcher* Switcher = Cast<ASelectTypeSwitcher>(Actor);
+				Switcher->OnPlayerEnteredArea.AddDynamic(this, &UGrabberComponent::SetCanTraceTroughWalls);
+			}
+		}
+	}
+}
+
+void UGrabberComponent::SetCanTraceTroughWalls(bool bCanTrace)
+{
+	bCanTraceTroughWalls = bCanTrace;
+}
 
 // Called every frame
 void UGrabberComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -138,16 +176,19 @@ void UGrabberComponent::TraceFromCamera(const float& TraceDistance, const float&
 	OutStartTrace = OwnerCamera->GetComponentLocation();
 	OutEndTrace = OwnerCamera->GetComponentLocation() + OwnerCamera->GetForwardVector() * TraceDistance;
 
-	if (GetWorld()->SweepSingleByChannel(
+	if (!bCanTraceTroughWalls)
+	{
+		if (GetWorld()->SweepSingleByChannel(
 		OutHitResult,
 		OutStartTrace,
 		OutEndTrace,
 		FQuat::Identity,
 		ECC_Visibility,
 		FCollisionShape::MakeSphere(SphereRadius)))
-	{
-		OutIsHit = false;
-		return;
+		{
+			OutIsHit = false;
+			return;
+		}
 	}
 	
 	OutIsHit = GetWorld()->SweepSingleByChannel(
