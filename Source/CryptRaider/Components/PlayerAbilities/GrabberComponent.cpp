@@ -32,6 +32,7 @@ void UGrabberComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SubscribeToTypeSwitchers();
 	
 #if WITH_EDITORONLY_DATA
 	DECLARE_LOG_CATEGORY_CLASS(UGrabberComponentLog, Error, Error)
