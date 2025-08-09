@@ -25,7 +25,7 @@ void ASelectTypeSwitcher::OnPlayerEnterArea(AActor* OverlappedActor, AActor* Oth
 {
 	if (OtherActor && OtherActor->IsA(ACharacter::StaticClass()))
 	{
-		OnPlayerEnteredArea.Broadcast(true);
+		OnPlayerEnteredArea.Broadcast(false);
 	}
 }
 
@@ -33,6 +33,6 @@ void ASelectTypeSwitcher::OnPlayerExitArea(AActor* OverlappedActor, AActor* Othe
 {
 	if (OtherActor && OtherActor->IsA(ACharacter::StaticClass()))
 	{
-		OnPlayerEnteredArea.Broadcast(false);
+		OnPlayerEnteredArea.Broadcast(true);
 	}
 }
