@@ -1,7 +1,6 @@
 <blockquote>You are a crypt raider, on a quest to clear this crypt of its four foul treasures...&nbsp;You keep repeating to yourself, <strong>“I should bring them back to the front door.”</strong> With your hands shaking, you step into the unknown.</blockquote>
 <br>
 <figure><img src="https://img.itch.zone/aW1nLzIyMzcyNjEzLnBuZw==/original/nXoQWp.png" loading="lazy"><br></figure>
-<br>
 <p>Your actions&nbsp;<em>shape the soundtrack</em>&nbsp;and lead to multiple endings.</p>
 <figure><img src="https://img.itch.zone/aW1nLzIyMzU3NTY0LnBuZw==/original/6P113u.png" loading="lazy"><br><br></figure>
 <br>
