@@ -3,7 +3,6 @@
 <figure><img src="https://img.itch.zone/aW1nLzIyMzcyNjEzLnBuZw==/original/nXoQWp.png" loading="lazy"><br></figure>
 <br>
 <p>Your actions&nbsp;<em>shape the soundtrack</em>&nbsp;and lead to multiple endings.</p>
-<br>
 <figure><img src="https://img.itch.zone/aW1nLzIyMzU3NTY0LnBuZw==/original/6P113u.png" loading="lazy"><br><br></figure>
 <br>
 <p><strong>System Requirements:</strong></p>
